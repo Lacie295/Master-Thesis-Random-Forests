@@ -9,10 +9,10 @@ class RandomForest(learning.Learning):
         self.r = RandomForestClassifier(kwargs)
 
     def build(self):
-        pass
+        self.r.fit(self.data_set.data, self.data_set.classes)
 
-    def run(self, data_set):
-        pass
+    def run(self, data_set: file_manager.DataSet):
+        self.r.predict(data_set.data)
 
     def write_to_file(self):
         pass

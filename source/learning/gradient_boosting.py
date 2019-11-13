@@ -9,7 +9,7 @@ class GradientBoosting(learning.Learning):
     def build(self):
         pass
 
-    def run(self, data_set):
+    def run(self, data_set: file_manager.DataSet):
         pass
 
     def write_to_file(self):

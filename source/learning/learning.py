@@ -12,7 +12,7 @@ class Learning(ABC):
         pass
 
     @abstractmethod
-    def run(self, data_set):
+    def run(self, data_set: file_manager.DataSet):
         pass
 
     @abstractmethod

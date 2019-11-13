@@ -11,8 +11,8 @@ class DecisionTree(learning.Learning):
     def build(self):
         self.t.fit(self.data_set.data, self.data_set.classes)
 
-    def run(self, data_set):
-        return self.t.predict(data_set)
+    def run(self, data_set: file_manager.DataSet):
+        return self.t.predict(data_set.data)
 
     def write_to_file(self):
         pass
