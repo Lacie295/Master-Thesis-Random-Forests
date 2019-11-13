@@ -5,10 +5,11 @@ data_sets = {}
 
 class DataSet:
     file = ""
-    classes = {}
+    class_labels = {}
     labels = {}
     data = []
     converted_data = []
+    classes = []
 
     def __init__(self, file):
         self.file = file
@@ -43,17 +44,18 @@ def parse(file):
                     n = int(t[0])
                     c = t[1]
                     c = c[2:-2] if re.match(r"'{.*}'", c) else c[1:-1]
-                    d.classes[n] = c
+                    d.class_labels[n] = c
             elif re.match(r"^@data$", tokens[0]) and not reading_data:
                 reading_data = True
             elif re.match(r"^@.*$", tokens[0]):
                 pass
             elif re.match(r"^[0-9]+$", tokens[0]) and reading_data:
                 data = []
-                for token in tokens:
+                for token in tokens[:-1]:
                     i = int(token)
                     data.append(i)
                 d.data.append(data)
+                d.classes.apped(int(tokens[-1]))
             else:
                 raise RuntimeError("Incorrect formatting!")
     return d
@@ -69,6 +71,10 @@ def get_data(file):
 
 def get_classes(file):
     return get_file(file).classes
+
+
+def get_class_labels(file):
+    return get_file(file).class_labels
 
 
 def get_labels(file):

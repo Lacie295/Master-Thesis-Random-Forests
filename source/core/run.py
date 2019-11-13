@@ -6,11 +6,16 @@ from source.utils import file_manager, learning_manager
 def main(args):
     assert isinstance(args, ap.Namespace)
 
+    b = True if args.force_rebuild else False
+
     if args.input:
         file_manager.read(args.input)
 
     if args.all:
-        learning_manager.build_all(b=True if args.force_rebuild else False)
+        learning_manager.build_all(b=b)
+
+    if args.method:
+        learning_manager.build_algorithms(args.method, b=b)
 
 
 if __name__ == "__main__":

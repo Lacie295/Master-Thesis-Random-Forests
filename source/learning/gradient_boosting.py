@@ -1,17 +1,19 @@
-built = {}
+from source.utils import file_manager
+from source.learning import learning
 
 
-def build(data_set, b=False):
-    pass
+class GradientBoosting(learning.Learning):
+    def __init__(self, data_set: file_manager.DataSet, b=False, **kwargs):
+        super().__init__(data_set, b=b)
 
+    def build(self):
+        pass
 
-def run(data_set):
-    pass
+    def run(self, data_set):
+        pass
 
+    def write_to_file(self):
+        pass
 
-def write_to_file():
-    pass
-
-
-def read_from_file():
-    pass
+    def read_from_file(self):
+        return False
