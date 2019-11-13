@@ -14,7 +14,7 @@ class DataSet:
         self.file = file
 
     def convert_data(self):
-        self.converted_data = [[0] * len(self.labels)] * len(self.data)
+        self.converted_data = [[0 for _ in range(len(self.labels))] for _ in range(len(self.data))]
         for i in range(len(self.data)):
             for j in self.data[i]:
                 self.converted_data[i][j] = 1
@@ -32,7 +32,7 @@ def parse(file):
     reading_data = False
     for line in lines:
         if line.strip():
-            tokens = line.strip().split(" ")
+            tokens = line.strip().split()
             if re.match(r"^@[0-9]+:$", tokens[0]) and not reading_data:
                 n = int(tokens[0][1:-1])
                 label = line[len(tokens[0]):].strip()
