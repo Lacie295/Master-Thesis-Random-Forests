@@ -9,7 +9,7 @@ class CPTree(learning.Learning):
     def build(self):
         pass
 
-    def run(self, data_set: file_manager.DataSet):
+    def run(self):
         pass
 
     def write_to_file(self):

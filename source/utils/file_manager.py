@@ -1,6 +1,5 @@
 import re
-
-data_sets = {}
+from numpy.random import choice
 
 
 class DataSet:
@@ -10,15 +9,40 @@ class DataSet:
     data = []
     converted_data = []
     classes = []
+    train_indices = []
 
     def __init__(self, file):
         self.file = file
 
     def convert_data(self):
-        self.converted_data = [[0 for _ in range(len(self.labels))] for _ in range(len(self.data))]
-        for i in range(len(self.data)):
-            for j in self.data[i]:
-                self.converted_data[i][j] = 1
+        if not self.converted_data:
+            self.converted_data = [[0 for _ in range(len(self.labels))] for _ in range(len(self.data))]
+            for i in range(len(self.data)):
+                for j in self.data[i]:
+                    self.converted_data[i][j] = 1
+
+    def get_converted_data(self):
+        self.convert_data()
+        return self.converted_data
+
+    def split(self):
+        i = list(range(len(self.data)))
+        self.train_indices = list(choice(i, size=len(self.data) // 2, replace=False))
+
+    def train(self):
+        return [self.get_converted_data()[i] for i in self.train_indices]
+
+    def train_classes(self):
+        return [self.classes[i] for i in self.train_indices]
+
+    def test(self):
+        return [self.get_converted_data()[i] for i in range(len(self.classes)) if i not in self.train_indices]
+
+    def test_classes(self):
+        return [self.classes[i] for i in range(len(self.classes)) if i not in self.train_indices]
+
+
+data_sets = {}
 
 
 def read(files):
@@ -55,7 +79,7 @@ def parse(file):
                     i = int(token)
                     data.append(i)
                 d.data.append(data)
-                d.classes.apped(int(tokens[-1]))
+                d.classes.append(int(tokens[-1]))
             else:
                 raise RuntimeError("Incorrect formatting!")
     return d
@@ -83,6 +107,4 @@ def get_labels(file):
 
 def get_converted(file):
     d = get_file(file)
-    if not d.converted_data:
-        d.convert_data()
-    return d.converted_data
+    return d.get_converted_data()

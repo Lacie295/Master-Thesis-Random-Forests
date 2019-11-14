@@ -24,12 +24,15 @@ def build_algorithms(algos, b=False):
     for algo in algos:
         discriminants[algo] = {}
 
-    for data_set in file_manager.data_sets:
+    for data_set in file_manager.data_sets.values():
+        data_set.split()
+        print(data_set.file)
         for algo in algos:
-            # TODO: split in train and test
             d = algo_names[algo](data_set, b=b, **kwargs[algo])
             discriminants[algo][data_set.file] = d
             d.build()
+            d.run()
+            d.write_to_file()
 
 
 def build_all(b=False):
