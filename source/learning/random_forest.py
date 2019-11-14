@@ -6,7 +6,7 @@ from source.learning import learning
 class RandomForest(learning.Learning):
     def __init__(self, data_set: file_manager.DataSet, b=False, **kwargs):
         super().__init__(data_set, b=b)
-        self.r = RandomForestClassifier(kwargs)
+        self.r = RandomForestClassifier()
         self.predict = []
 
     def build(self):
@@ -16,8 +16,12 @@ class RandomForest(learning.Learning):
         self.predict = self.r.predict(self.data_set.test())
 
     def write_to_file(self):
-        print(self.predict)
-        print(asarray(self.data_set.test_classes()))
+        d = self.data_set.test_classes()
+        count = 0
+        for i in range(len(self.predict)):
+            if self.predict[i] == d[i]:
+                count += 1
+        print("Random Forest prediction rate on " + self.data_set.file + ": " + str(count / len(self.predict)))
 
     def read_from_file(self):
         return False

@@ -1,7 +1,6 @@
 from sklearn import tree
 from source.utils import file_manager
 from source.learning import learning
-from numpy import asarray
 
 
 class DecisionTree(learning.Learning):
@@ -17,8 +16,12 @@ class DecisionTree(learning.Learning):
         self.predict = self.t.predict(self.data_set.test())
 
     def write_to_file(self):
-        print(self.predict)
-        print(asarray(self.data_set.test_classes()))
+        d = self.data_set.test_classes()
+        count = 0
+        for i in range(len(self.predict)):
+            if self.predict[i] == d[i]:
+                count += 1
+        print("Decision tree prediction rate on " + self.data_set.file + ": " + str(count / len(self.predict)))
 
     def read_from_file(self):
         return False
