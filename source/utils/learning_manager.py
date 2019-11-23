@@ -10,8 +10,8 @@ algo_names = {
 }
 
 kwargs = {
-    "D-tree": {},
-    "R-forest": {},
+    "D-tree": {'min_samples_leaf': 2},
+    "R-forest": {'n_estimators': 100},
     "CP-tree": {},
     "DL8": {},
     "G-boosting": {}
@@ -28,7 +28,7 @@ def build_algorithms(algos, b=False):
         data_set.split()
         print(data_set.file)
         for algo in algos:
-            d = algo_names[algo](data_set, b=b, **kwargs[algo])
+            d = algo_names[algo](data_set, b=b, **(kwargs[algo]))
             discriminants[algo][data_set.file] = d
             d.build()
             d.run()
