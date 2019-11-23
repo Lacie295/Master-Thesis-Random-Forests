@@ -1,5 +1,7 @@
 import re
+import json
 from numpy.random import choice
+import os
 
 
 class DataSet:
@@ -108,3 +110,14 @@ def get_labels(file):
 def get_converted(file):
     d = get_file(file)
     return d.get_converted_data()
+
+
+def write_to_file(file, category, d):
+    if os.path.exists(file):
+        f = open(file, "r")
+        data = json.load(f)
+    else:
+        data = {}
+    f = open(file, "w+")
+    data[category] = d
+    json.dump(data, f)

@@ -35,7 +35,8 @@ class RandomForest(learning.Learning):
         print("Build time on " + self.data_set.file + ": " + str(self.avg_time) + "s")
 
     def write_to_file(self):
-        pass
+        file_manager.write_to_file("results/random_forests.json", self.data_set.file,
+                                   {"time": self.avg_time, "acc": self.avg_acc})
 
     def read_from_file(self):
         return False
