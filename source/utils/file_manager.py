@@ -112,7 +112,7 @@ def get_converted(file):
     return d.get_converted_data()
 
 
-def write_to_file(file, category, d):
+def write_to_db(file, category, d):
     if os.path.exists(file):
         f = open(file, "r")
         data = json.load(f)
@@ -121,3 +121,12 @@ def write_to_file(file, category, d):
     f = open(file, "w+")
     data[category] = d
     json.dump(data, f)
+
+
+def read_from_db(file, category):
+    if os.path.exists(file):
+        f = open(file, "r")
+        data = json.load(f)
+        return data[category]
+    else:
+        return {}
