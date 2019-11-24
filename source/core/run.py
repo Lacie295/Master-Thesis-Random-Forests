@@ -1,6 +1,7 @@
 import argparse as ap
 
 from source.utils import file_manager, learning_manager
+from source.graphing import grapher
 
 
 def main(args):
@@ -18,7 +19,11 @@ def main(args):
     if args.method:
         learning_manager.build_algorithms(args.method, b=b, percent=s)
 
+    if args.graph and args.all:
+        grapher.plot_all()
 
+    if args.graph and args.method:
+        grapher.plot(args.method)
 
 
 if __name__ == "__main__":

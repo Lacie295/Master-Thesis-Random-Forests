@@ -14,12 +14,14 @@ class Learning(ABC):
         self.avg_acc = 0
         self.avg_time = 0
         self.done = False
+        self.size = 0
         self.FILE = "DEFAULT"
         self.NAME = "DEFAULT"
 
     @abstractmethod
     def build(self):
         if not self.done:
+            self.size = len(self.data_set.train_indices)
             t = time.time()
             self.t.fit(self.data_set.train(), self.data_set.train_classes())
             run_t = time.time() - t
@@ -48,9 +50,8 @@ class Learning(ABC):
         if not self.done:
             file_manager.write_to_db(self.FILE, self.data_set.file,
                                      {"time": self.avg_time, "acc": self.avg_acc,
-                                      "train_size": len(self.data_set.train_indices),
-                                      "test_size": len(self.data_set.data) - len(
-                                          self.data_set.train_indices)})
+                                      "train_size": self.size,
+                                      "test_size": len(self.data_set.data) - self.size})
 
     @abstractmethod
     def read_from_file(self):
@@ -59,6 +60,7 @@ class Learning(ABC):
             if data:
                 self.avg_acc = data["acc"]
                 self.avg_time = data["time"]
+                self.size = data["train_size"]
                 self.done = True
                 print("file found!")
             else:

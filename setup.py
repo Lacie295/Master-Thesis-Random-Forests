@@ -5,6 +5,6 @@ setup(
     packages=['forester'],
     include_package_data=True,
     install_requires=[
-        'numpy', 'scikit-learn'
+        'numpy', 'scikit-learn', 'plotly'
     ],
 )
