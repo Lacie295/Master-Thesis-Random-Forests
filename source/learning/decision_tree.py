@@ -3,7 +3,7 @@ from source.utils import file_manager
 from source.learning import learning
 
 NAME = "Decision Tree"
-FILE = "results/decision_tree.json"
+FILE = "decision_tree"
 
 
 class DecisionTree(learning.Learning):
@@ -12,8 +12,6 @@ class DecisionTree(learning.Learning):
         self.t = tree.DecisionTreeClassifier(**kwargs)
         self.FILE = FILE
         self.NAME = NAME
-        if not b:
-            self.read_from_file()
 
     def build(self):
         super().build()

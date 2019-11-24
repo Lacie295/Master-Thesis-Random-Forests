@@ -19,6 +19,8 @@ class Learning(ABC):
 
     @abstractmethod
     def build(self):
+        if not self.b:
+            self.read_from_file()
         if not self.done:
             t = time.time()
             self.t.fit(self.data_set.train(), self.data_set.train_classes())
@@ -45,7 +47,10 @@ class Learning(ABC):
         print("Build time on " + self.data_set.file + ": " + str(self.avg_time) + "s")
         if not self.done:
             file_manager.write_to_db(self.FILE, self.data_set.file,
-                                     {"time": self.avg_time, "acc": self.avg_acc})
+                                     {"time": self.avg_time, "acc": self.avg_acc,
+                                      "train_size": len(self.data_set.train_indices),
+                                      "test_size": len(self.data_set.data) - len(
+                                          self.data_set.train_indices)})
 
     @abstractmethod
     def read_from_file(self):
@@ -56,4 +61,4 @@ class Learning(ABC):
             self.done = True
             print("file found!")
         else:
-            print("file not found, doing calculations")
+            print("file not found or outdated, doing calculations")

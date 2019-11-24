@@ -1,1 +1,1 @@
-{"data/mushroom.txt": {"time": 1.226835012435913, "acc": 0.9992614475627769}}
+{"version": 1.1, "data/mushroom.txt": {"time": 4.371317148208618, "acc": 1.0, "train_size": 6499, "test_size": 1625}}

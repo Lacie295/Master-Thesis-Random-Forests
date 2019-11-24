@@ -3,7 +3,7 @@ from source.utils import file_manager
 from source.learning import learning
 
 NAME = "Gradient Boosting"
-FILE = "results/gradient_boosting.json"
+FILE = "gradient_boosting"
 
 
 class GradientBoosting(learning.Learning):
@@ -12,8 +12,6 @@ class GradientBoosting(learning.Learning):
         self.t = GradientBoostingClassifier(**kwargs)
         self.FILE = FILE
         self.NAME = NAME
-        if not b:
-            self.read_from_file()
 
     def build(self):
         super().build()

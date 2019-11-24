@@ -20,12 +20,12 @@ kwargs = {
 discriminants = {}
 
 
-def build_algorithms(algos, b=False):
+def build_algorithms(algos, b=False, percent=0.5):
     for algo in algos:
         discriminants[algo] = {}
 
     for data_set in file_manager.data_sets.values():
-        data_set.split()
+        data_set.split(percent)
         print(data_set.file)
         for algo in algos:
             d = algo_names[algo](data_set, b=b, **(kwargs[algo]))
@@ -35,5 +35,5 @@ def build_algorithms(algos, b=False):
             d.write_to_file()
 
 
-def build_all(b=False):
-    build_algorithms(algo_names.keys(), b=b)
+def build_all(b=False, percent=0.5):
+    build_algorithms(algo_names.keys(), b=b, percent=percent)

@@ -3,6 +3,8 @@ import json
 from numpy.random import choice
 import os
 
+JSON_VERSION = 1.1
+
 
 class DataSet:
     file = ""
@@ -27,9 +29,9 @@ class DataSet:
         self.convert_data()
         return self.converted_data
 
-    def split(self):
+    def split(self, percent):
         i = list(range(len(self.data)))
-        self.train_indices = list(choice(i, size=len(self.data) // 2, replace=False))
+        self.train_indices = list(choice(i, size=int(len(self.data) * percent), replace=False))
 
     def train(self):
         return [self.get_converted_data()[i] for i in self.train_indices]
@@ -113,9 +115,12 @@ def get_converted(file):
 
 
 def write_to_db(file, category, d):
+    file = file_db(file)
     if os.path.exists(file):
         f = open(file, "r")
         data = json.load(f)
+        if "version" not in data or data["version"] < JSON_VERSION:
+            data = {"version": JSON_VERSION}
     else:
         data = {}
     f = open(file, "w+")
@@ -124,9 +129,17 @@ def write_to_db(file, category, d):
 
 
 def read_from_db(file, category):
+    file = file_db(file)
     if os.path.exists(file):
         f = open(file, "r")
         data = json.load(f)
-        return data[category]
+        if "version" not in data or data["version"] < JSON_VERSION:
+            return {}
+        else:
+            return data[category]
     else:
         return {}
+
+
+def file_db(file):
+    return "results/" + file + ".json"

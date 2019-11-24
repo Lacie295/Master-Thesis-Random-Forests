@@ -3,7 +3,7 @@ from source.utils import file_manager
 from source.learning import learning
 
 NAME = "Random Forest"
-FILE = "results/random_forest.json"
+FILE = "random_forest"
 
 
 class RandomForest(learning.Learning):
@@ -12,8 +12,6 @@ class RandomForest(learning.Learning):
         self.t = RandomForestClassifier(**kwargs)
         self.FILE = FILE
         self.NAME = NAME
-        if not b:
-            self.read_from_file()
 
     def build(self):
         super().build()
