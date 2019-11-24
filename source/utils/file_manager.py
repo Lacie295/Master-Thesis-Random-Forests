@@ -135,8 +135,10 @@ def read_from_db(file, category):
         data = json.load(f)
         if "version" not in data or data["version"] < JSON_VERSION:
             return {}
-        else:
+        elif category in data:
             return data[category]
+        else:
+            return {}
     else:
         return {}
 

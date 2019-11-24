@@ -41,8 +41,10 @@ class Learning(ABC):
 
     @abstractmethod
     def write_to_file(self):
-        print(self.NAME + " prediction rate on " + self.data_set.file + ": " + str(self.avg_acc))
-        print("Build time on " + self.data_set.file + ": " + str(self.avg_time) + "s")
+        print(self.NAME + " prediction rate on " + self.data_set.file + " on " + str(self.n_runs) + " runs: " +
+              str(self.avg_acc))
+        print("Build time on " + self.data_set.file + " on " + str(self.n_builds) + " builds: " +
+              str(self.avg_time) + "s")
         if not self.done:
             file_manager.write_to_db(self.FILE, self.data_set.file,
                                      {"time": self.avg_time, "acc": self.avg_acc,
@@ -52,11 +54,14 @@ class Learning(ABC):
 
     @abstractmethod
     def read_from_file(self):
-        data = file_manager.read_from_db(self.FILE, self.data_set.file)
-        if data:
-            self.avg_acc = data["acc"]
-            self.avg_time = data["time"]
-            self.done = True
-            print("file found!")
+        if not self.done:
+            data = file_manager.read_from_db(self.FILE, self.data_set.file)
+            if data:
+                self.avg_acc = data["acc"]
+                self.avg_time = data["time"]
+                self.done = True
+                print("file found!")
+            else:
+                print("file not found or outdated, doing calculations.")
         else:
-            print("file not found or outdated, doing calculations")
+            print("already loaded.")
