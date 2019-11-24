@@ -19,8 +19,6 @@ class Learning(ABC):
 
     @abstractmethod
     def build(self):
-        if not self.b:
-            self.read_from_file()
         if not self.done:
             t = time.time()
             self.t.fit(self.data_set.train(), self.data_set.train_classes())
@@ -38,7 +36,7 @@ class Learning(ABC):
                 if self.predict[i] == d[i]:
                     count += 1
             acc = count / len(self.predict)
-            self.avg_acc = (self.avg_acc * (self.n_runs + 1) + acc) / (self.n_runs + 1)
+            self.avg_acc = (self.avg_acc * self.n_runs + acc) / (self.n_runs + 1)
             self.n_runs += 1
 
     @abstractmethod
