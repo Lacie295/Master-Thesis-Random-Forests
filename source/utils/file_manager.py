@@ -2,6 +2,7 @@ import re
 import json
 from numpy.random import choice
 import os
+import glob
 
 JSON_VERSION = 1.1
 
@@ -51,8 +52,9 @@ data_sets = {}
 
 def read(files):
     for f in files:
-        file = open(f)
-        data_sets[f] = parse(file)
+        for g in glob.glob(f):
+            file = open(g)
+            data_sets[g] = parse(file)
 
 
 def parse(file):

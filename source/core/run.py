@@ -10,8 +10,7 @@ def main(args):
     b = True if args.force_rebuild else False
     s = args.split
 
-    if args.input:
-        file_manager.read(args.input)
+    file_manager.read(args.input)
 
     if args.all:
         learning_manager.build_all(b=b, percent=s)
