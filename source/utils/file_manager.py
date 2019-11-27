@@ -1,6 +1,6 @@
 import re
 import json
-from numpy.random import choice
+from sklearn.model_selection import train_test_split
 import os
 import glob
 
@@ -14,7 +14,10 @@ class DataSet:
     data = []
     converted_data = []
     classes = []
-    train_indices = []
+    train = []
+    test = []
+    train_classes = []
+    test_classes = []
 
     def __init__(self, file):
         self.file = file
@@ -32,19 +35,8 @@ class DataSet:
 
     def split(self, percent):
         i = list(range(len(self.data)))
-        self.train_indices = list(choice(i, size=int(len(self.data) * percent), replace=False))
-
-    def train(self):
-        return [self.get_converted_data()[i] for i in self.train_indices]
-
-    def train_classes(self):
-        return [self.classes[i] for i in self.train_indices]
-
-    def test(self):
-        return [self.get_converted_data()[i] for i in range(len(self.classes)) if i not in self.train_indices]
-
-    def test_classes(self):
-        return [self.classes[i] for i in range(len(self.classes)) if i not in self.train_indices]
+        self.train, self.test, self.train_classes, self.test_classes = \
+            train_test_split(self.get_converted_data(), self.classes, train_size=percent)
 
 
 data_sets = {}

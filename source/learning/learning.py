@@ -21,9 +21,9 @@ class Learning(ABC):
     @abstractmethod
     def build(self):
         if not self.done:
-            self.size = len(self.data_set.train_indices)
+            self.size = len(self.data_set.train)
             t = time.time()
-            self.t.fit(self.data_set.train(), self.data_set.train_classes())
+            self.t.fit(self.data_set.train, self.data_set.train_classes)
             run_t = time.time() - t
             self.avg_time = (self.avg_time * self.n_builds + run_t) / (self.n_builds + 1)
             self.n_builds += 1
@@ -31,8 +31,8 @@ class Learning(ABC):
     @abstractmethod
     def run(self):
         if not self.done:
-            self.predict = self.t.predict(self.data_set.test())
-            d = self.data_set.test_classes()
+            self.predict = self.t.predict(self.data_set.test)
+            d = self.data_set.test_classes
             count = 0
             for i in range(len(self.predict)):
                 if self.predict[i] == d[i]:
