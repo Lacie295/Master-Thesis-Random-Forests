@@ -8,19 +8,17 @@ JSON_VERSION = 1.1
 
 
 class DataSet:
-    file = ""
-    class_labels = {}
-    labels = {}
-    data = []
-    converted_data = []
-    classes = []
-    train = []
-    test = []
-    train_classes = []
-    test_classes = []
-
     def __init__(self, file):
         self.file = file
+        self.class_labels = {}
+        self.labels = {}
+        self.data = []
+        self.converted_data = []
+        self.classes = []
+        self.train = []
+        self.test = []
+        self.train_classes = []
+        self.test_classes = []
 
     def convert_data(self):
         if not self.converted_data:
@@ -47,6 +45,8 @@ def read(files):
         for g in glob.glob(f):
             file = open(g)
             data_sets[g] = parse(file)
+            d = data_sets
+            pass
 
 
 def parse(file):

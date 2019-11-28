@@ -12,9 +12,9 @@ algo_names = {
 kwargs = {
     "D-tree": {'min_samples_leaf': 2},
     "R-forest": {'n_estimators': 100},
-    "CP-tree": {'n_estimators': 100},
+    "CP-tree": {},
     "DL8": {},
-    "G-boosting": {}
+    "G-boosting": {'n_estimators': 100}
 }
 
 discriminants = {}
