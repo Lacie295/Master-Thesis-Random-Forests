@@ -32,7 +32,11 @@ def plot(algos):
                         yaxis_title='Prediction Accuracy')
     g_time.update_layout(title='Average time by size of data',
                          xaxis_title='Training Data Size',
-                         yaxis_title='Time to construct predictor')
+                         yaxis_title='Time to construct predictor (s)')
+    g_acc.update_yaxes(type="log")
+    g_time.update_yaxes(type="log")
+    g_acc.update_xaxes(rangemode="tozero")
+    g_time.update_xaxes(rangemode="tozero")
     g_acc.write_image("plots/acc.png")
     g_time.write_image("plots/time.png")
 
