@@ -24,6 +24,11 @@ def main(args):
     if args.graph and args.method:
         grapher.plot(args.method)
 
+    if args.create_table and args.all:
+        grapher.table_all()
+
+    if args.create_table and args.method:
+        grapher.table(args.method)
 
 if __name__ == "__main__":
     parser = ap.ArgumentParser()
@@ -31,6 +36,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input', nargs="+", required=True)
     parser.add_argument('-g', '--graph', action="store_true")
     parser.add_argument('-f', '--force-rebuild', action="store_true")
+    parser.add_argument('-t', '--create-table', action="store_true")
     parser.add_argument('-s', '--split', nargs="?", const=0.5, type=float)
 
     command_group = parser.add_mutually_exclusive_group()

@@ -27,7 +27,7 @@ def build_algorithms(algos, b=False, percent=0.5):
     for data_set in file_manager.data_sets.values():
         print(data_set.file)
         for algo in algos:
-            d = algo_names[algo](data_set, b=b, **(kwargs[algo]))
+            d = algo_names[algo](data_set, b=b, percent=percent, **(kwargs[algo]))
             discriminants[algo][data_set.file] = d
             if not b:
                 d.read_from_file()

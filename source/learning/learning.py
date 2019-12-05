@@ -4,7 +4,7 @@ import time
 
 
 class Learning(ABC):
-    def __init__(self, data_set: file_manager.DataSet, b=False, **kwargs):
+    def __init__(self, data_set: file_manager.DataSet, b=False, percent=0.5, **kwargs):
         self.data_set = data_set
         self.b = b
         self.t = None
@@ -17,6 +17,7 @@ class Learning(ABC):
         self.size = 0
         self.FILE = "DEFAULT"
         self.NAME = "DEFAULT"
+        self.percent = percent
 
     @abstractmethod
     def build(self):
@@ -48,7 +49,7 @@ class Learning(ABC):
         print("Build time on " + self.data_set.file + " on " + str(self.n_builds) + " builds: " +
               str(self.avg_time) + "s")
         if not self.done:
-            file_manager.write_to_db(self.FILE, self.data_set.file,
+            file_manager.write_to_db(self.FILE, self.data_set.file + " " + str(self.percent),
                                      {"time": self.avg_time, "acc": self.avg_acc,
                                       "train_size": self.size,
                                       "test_size": len(self.data_set.data) - self.size})
@@ -56,7 +57,7 @@ class Learning(ABC):
     @abstractmethod
     def read_from_file(self):
         if not self.done:
-            data = file_manager.read_from_db(self.FILE, self.data_set.file)
+            data = file_manager.read_from_db(self.FILE, self.data_set.file + " " + str(self.percent))
             if data:
                 self.avg_acc = data["acc"]
                 self.avg_time = data["time"]

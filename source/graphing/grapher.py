@@ -1,5 +1,5 @@
 import plotly.graph_objects as go
-from source.utils import learning_manager
+from source.utils import learning_manager, file_manager
 
 
 def plot(algos):
@@ -43,3 +43,26 @@ def plot(algos):
 
 def plot_all():
     plot(learning_manager.algo_names.keys())
+
+
+def table(algos):
+    print("\\begin{tabular}{ll|" + ("l" * len(algos)) + "}")
+    s = "dataset & size"
+    for algo in algos:
+        s += " & " + algo
+    s += "\\\\"
+    print(s)
+    print("\\hline")
+    files = sorted(file_manager.data_sets, key=lambda a: learning_manager.discriminants[algos[0]][a].size)
+    for file in files:
+        s = file.split("/")[-1].split(".")[0] + " & " + str(learning_manager.discriminants[algos[0]][file].size)
+        for algo in algos:
+            discriminant = learning_manager.discriminants[algo][file]
+            s += " & {0:.2f}\\%".format(round(discriminant.avg_acc * 100, 2))
+        s += "\\\\"
+        print(s)
+    print("\\end{tabular}")
+
+
+def table_all():
+    table(learning_manager.algo_names.keys())

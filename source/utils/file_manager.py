@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import os
 import glob
 
-JSON_VERSION = 1.1
+JSON_VERSION = 1.2
 
 
 class DataSet:

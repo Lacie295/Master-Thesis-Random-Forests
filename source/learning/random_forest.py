@@ -7,8 +7,8 @@ FILE = "random_forest"
 
 
 class RandomForest(learning.Learning):
-    def __init__(self, data_set: file_manager.DataSet, b=False, **kwargs):
-        super().__init__(data_set, b=b)
+    def __init__(self, data_set: file_manager.DataSet, percent=0.5, b=False, **kwargs):
+        super().__init__(data_set, percent=percent, b=b)
         self.t = RandomForestClassifier(**kwargs)
         self.FILE = FILE
         self.NAME = NAME
