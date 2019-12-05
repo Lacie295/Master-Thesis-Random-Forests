@@ -1,19 +1,26 @@
 from source.utils import file_manager
 from source.learning import learning
+from dl85 import ODTClassifier
+
+NAME = "DL8"
+FILE = "dl8"
 
 
 class DL8(learning.Learning):
     def __init__(self, data_set: file_manager.DataSet, percent=0.5, b=False, **kwargs):
         super().__init__(data_set, percent=percent, b=b)
+        self.t = ODTClassifier(**kwargs)
+        self.FILE = FILE
+        self.NAME = NAME
 
     def build(self):
-        pass
+        super().build()
 
     def run(self):
-        pass
+        super().run()
 
     def write_to_file(self):
-        pass
+        super().write_to_file()
 
     def read_from_file(self):
-        return False
+        super().read_from_file()

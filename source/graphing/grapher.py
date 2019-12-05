@@ -47,7 +47,7 @@ def plot_all():
 
 def table(algos):
     print("\\begin{tabular}{ll|" + ("l" * len(algos)) + "}")
-    s = "dataset & size"
+    s = "Dataset & Size"
     for algo in algos:
         s += " & " + algo
     s += "\\\\"
