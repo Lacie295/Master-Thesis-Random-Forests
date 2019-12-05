@@ -15,6 +15,7 @@ class DL8(learning.Learning):
 
     def build(self):
         super().build()
+        print(self.t.error_)
 
     def run(self):
         super().run()

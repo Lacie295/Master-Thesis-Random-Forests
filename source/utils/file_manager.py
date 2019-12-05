@@ -19,6 +19,7 @@ class DataSet:
         self.test = []
         self.train_classes = []
         self.test_classes = []
+        self.size = 0
 
     def convert_data(self):
         if not self.converted_data:
@@ -80,6 +81,7 @@ def parse(file):
                 d.classes.append(int(tokens[-1]))
             else:
                 raise RuntimeError("Incorrect formatting!")
+    d.size = len(d.data)
     return d
 
 

@@ -56,9 +56,11 @@ def table(algos):
     files = sorted(file_manager.data_sets, key=lambda a: learning_manager.discriminants[algos[0]][a].size)
     for file in files:
         s = file.split("/")[-1].split(".")[0] + " & " + str(learning_manager.discriminants[algos[0]][file].size)
+        max_acc = max([learning_manager.discriminants[d][file].avg_acc for d in algos])
         for algo in algos:
-            discriminant = learning_manager.discriminants[algo][file]
-            s += " & {0:.2f}\\%".format(round(discriminant.avg_acc * 100, 2))
+            d_acc = learning_manager.discriminants[algo][file].avg_acc
+            s += " & {0:.2f}\\%".format(round(d_acc * 100, 2)) if d_acc < max_acc else \
+                " & \\textcolor{{uclgreen}}{{{0:.2f}\\%}}".format(round(d_acc * 100, 2))
         s += "\\\\"
         print(s)
     print("\\end{tabular}")
