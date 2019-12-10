@@ -67,4 +67,4 @@ def table(algos):
 
 
 def table_all():
-    table(learning_manager.algo_names.keys())
+    table(list(learning_manager.algo_names.keys()))

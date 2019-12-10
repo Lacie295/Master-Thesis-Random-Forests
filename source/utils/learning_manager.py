@@ -28,7 +28,7 @@ def build_algorithms(algos, b=False, percent=0.5):
         print(data_set.file)
         for algo in algos:
             if algo == "DL8":
-                kwargs[algo]["max_error"] = int(0.9 * percent * data_set.size)
+                kwargs[algo]["max_depth"] = int(0.7 * percent * len(file_manager.get_converted(data_set.file)[0]))
             d = algo_names[algo](data_set, b=b, percent=percent, **(kwargs[algo]))
             discriminants[algo][data_set.file] = d
             if not b:
