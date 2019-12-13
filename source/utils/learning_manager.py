@@ -1,11 +1,13 @@
 from source.utils import file_manager
-from source.learning import decision_tree, random_forest, cp_tree, dl8, gradient_boosting
+from source.learning import decision_tree, random_forest, cp_tree, dl8, gradient_boosting, dl8_forest
+import math
 
 algo_names = {
     "D-tree": decision_tree.DecisionTree,
     "R-forest": random_forest.RandomForest,
     "CP-tree": cp_tree.CPTree,
     "DL8": dl8.DL8,
+    "DL8-forest": dl8_forest.DL8Forest,
     "G-boosting": gradient_boosting.GradientBoosting
 }
 
@@ -14,6 +16,7 @@ kwargs = {
     "R-forest": {'n_estimators': 100},
     "CP-tree": {},
     "DL8": {},
+    "DL8-forest": {'n_estimators': 25},
     "G-boosting": {'n_estimators': 100}
 }
 
@@ -28,7 +31,9 @@ def build_algorithms(algos, b=False, percent=0.5):
         print(data_set.file)
         for algo in algos:
             if algo == "DL8":
-                kwargs[algo]["max_depth"] = int(0.7 * percent * len(file_manager.get_converted(data_set.file)[0]))
+                kwargs[algo]["max_depth"] = int(0.7 * len(file_manager.get_converted(data_set.file)[0]))
+            elif algo == "DL8-forest":
+                kwargs[algo]["max_depth"] = math.ceil(math.sqrt(len(file_manager.get_converted(data_set.file)[0])))
             d = algo_names[algo](data_set, b=b, percent=percent, **(kwargs[algo]))
             discriminants[algo][data_set.file] = d
             if not b:
