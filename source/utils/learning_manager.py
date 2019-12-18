@@ -14,9 +14,9 @@ algo_names = {
 kwargs = {
     "D-tree": {'min_samples_leaf': 2},
     "R-forest": {'n_estimators': 100},
-    "CP-tree": {},
-    "DL8": {},
-    "DL8-forest": {'n_estimators': 25},
+    "CP-tree": {'max_depth': 4},
+    "DL8": {'max_depth': 4},
+    "DL8-forest": {'n_estimators': 25, 'max_depth': 3},
     "G-boosting": {'n_estimators': 100}
 }
 
@@ -32,8 +32,6 @@ def build_algorithms(algos, b=False, percent=0.5):
         for algo in algos:
             if algo == "DL8":
                 kwargs[algo]["max_depth"] = int(0.7 * len(file_manager.get_converted(data_set.file)[0]))
-            elif algo == "DL8-forest":
-                kwargs[algo]["max_depth"] = math.ceil(math.sqrt(len(file_manager.get_converted(data_set.file)[0])))
             d = algo_names[algo](data_set, b=b, percent=percent, **(kwargs[algo]))
             discriminants[algo][data_set.file] = d
             if not b:
