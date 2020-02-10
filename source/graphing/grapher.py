@@ -40,6 +40,40 @@ def plot(algos):
     g_acc.write_image("plots/acc.png")
     g_time.write_image("plots/time.png")
 
+    if "DL8-forest" in algos:
+        discriminant = learning_manager.discriminants["DL8-forest"]
+        for file in discriminant:
+            layout = go.Layout(title='Frequency of attributes by depth',
+                               xaxis=dict(type='category', title='Attribute number'),
+                               yaxis=dict(title='Number of customers'))
+            g_spread = go.Figure(layout=layout)
+            data = discriminant[file]
+            depth_map = {}
+            total = {}
+            for i in data.depth_map:
+                d = data.depth_map[i]
+                for depth in d:
+                    attrs = d[depth]
+                    if depth not in depth_map:
+                        depth_map[depth] = {}
+                    for attr in attrs:
+                        if attr not in depth_map[depth]:
+                            depth_map[depth][attr] = attrs[attr]
+                        else:
+                            depth_map[depth][attr] += attrs[attr]
+                        if attr not in total:
+                            total[attr] = attrs[attr]
+                        else:
+                            total[attr] += attrs[attr]
+            print(depth_map)
+
+            for depth in depth_map:
+                keys = [k for k, v in sorted(total.items(), key=lambda item: -item[1])]
+                values = [depth_map[depth][k] if k in depth_map[depth] else 0 for k in keys]
+                g_spread.add_trace(go.Bar(x=keys, y=values, name="Depth " + str(depth)))
+
+            g_spread.write_image("plots/spead_" + file.split("/")[-1].split(".")[0] + ".png")
+
 
 def plot_all():
     plot(learning_manager.algo_names.keys())

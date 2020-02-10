@@ -3,7 +3,6 @@ from sklearn.utils.validation import check_X_y
 from sklearn.utils import resample
 import numpy as np
 from dl85 import ODTClassifier
-import sys, os
 
 from source.utils import file_manager
 from source.learning import learning
@@ -18,9 +17,11 @@ class DL8Forest(learning.Learning):
         self.t = Forest(**kwargs)
         self.FILE = FILE
         self.NAME = NAME
+        self.depth_map = {}
 
     def build(self):
         super().build()
+        self.depth_map[self.n_builds - 1] = self.t.get_depth_map()
 
     def run(self):
         super().run()
@@ -64,3 +65,28 @@ class Forest(BaseEstimator, ClassifierMixin):
 
     def check_is_fitted(self):
         return self.is_fitted
+
+    def get_depth_map(self):
+        if self.tree_class == ODTClassifier:
+            depth_map = {}
+            for t in self.estimators:
+                tree = t.tree_
+
+                def build_depth_map(tree, n=1):
+                    if n not in depth_map:
+                        depth_map[n] = {}
+                    d = depth_map[n]
+                    if 'class' not in tree:
+                        f = tree['feat']
+                        if f not in d:
+                            d[f] = 1
+                        else:
+                            d[f] += 1
+                        build_depth_map(tree['left'], n + 1)
+                        build_depth_map(tree['right'], n + 1)
+
+                build_depth_map(tree)
+            return depth_map
+        else:
+            return None
+
