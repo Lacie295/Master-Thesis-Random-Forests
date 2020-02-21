@@ -16,7 +16,7 @@ kwargs = {
     "R-forest": {'n_estimators': 100},
     "CP-tree": {'max_depth': 4},
     "DL8": {'max_depth': 4},
-    "DL8-forest": {'n_estimators': 25, 'max_depth': 3},
+    "DL8-forest": {'n_estimators': 10, 'max_depth': 3},
     "G-boosting": {'n_estimators': 100}
 }
 

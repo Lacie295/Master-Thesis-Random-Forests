@@ -1,5 +1,6 @@
 import plotly.graph_objects as go
 from source.utils import learning_manager, file_manager
+import numpy as np
 
 
 def plot(algos):
@@ -44,35 +45,68 @@ def plot(algos):
         discriminant = learning_manager.discriminants["DL8-forest"]
         for file in discriminant:
             layout = go.Layout(title='Frequency of attributes by depth',
-                               xaxis=dict(type='category', title='Attribute number'),
-                               yaxis=dict(title='Number of customers'))
+                               xaxis=dict(type='category', title='Attribute number (sorted by total %'),
+                               yaxis=dict(title='Frequency (%)'))
             g_spread = go.Figure(layout=layout)
             data = discriminant[file]
             depth_map = {}
             total = {}
+
+            total_count = 0
+            depth_count = {}
+
+            for i in data.depth_map:
+                d = data.depth_map[i]
+                for depth in d:
+                    attrs = d[depth]
+                    if depth not in depth_count:
+                        depth_count[depth] = 0
+
+                    for attr in attrs:
+                        depth_count[depth] += attrs[attr]
+                        total_count += attrs[attr]
+
             for i in data.depth_map:
                 d = data.depth_map[i]
                 for depth in d:
                     attrs = d[depth]
                     if depth not in depth_map:
                         depth_map[depth] = {}
+
                     for attr in attrs:
                         if attr not in depth_map[depth]:
-                            depth_map[depth][attr] = attrs[attr]
+                            depth_map[depth][attr] = 100 * attrs[attr] / depth_count[depth]
                         else:
-                            depth_map[depth][attr] += attrs[attr]
+                            depth_map[depth][attr] += 100 * attrs[attr] / depth_count[depth]
                         if attr not in total:
-                            total[attr] = attrs[attr]
+                            total[attr] = 100 * attrs[attr] / total_count
                         else:
-                            total[attr] += attrs[attr]
-            print(depth_map)
+                            total[attr] += 100 * attrs[attr] / total_count
 
             for depth in depth_map:
                 keys = [k for k, v in sorted(total.items(), key=lambda item: -item[1])]
                 values = [depth_map[depth][k] if k in depth_map[depth] else 0 for k in keys]
                 g_spread.add_trace(go.Bar(x=keys, y=values, name="Depth " + str(depth)))
 
-            g_spread.write_image("plots/spead_" + file.split("/")[-1].split(".")[0] + ".png")
+            g_spread.write_image("plots/spread/spread_" + file.split("/")[-1].split(".")[0] + ".png")
+
+            # unanimity
+
+            unanimity = data.unanimity
+            n_estimators = data.n_estimators
+
+            unan = [0] * (n_estimators[0] + 1)
+            for row in unanimity:
+                for col in row:
+                    unan[col] += 1
+
+            layout = go.Layout(title='Tree unanimity in DL8Forest',
+                               xaxis=dict(type='category', title='Number of trees in agreement'),
+                               yaxis=dict(title='Frequency (#)'))
+            g_unan = go.Figure(layout=layout)
+            g_unan.add_trace(go.Bar(x=list(range(n_estimators[0] + 1)), y=unan))
+            g_unan.write_image("plots/unan/unan_" + file.split("/")[-1].split(".")[0] + ".png")
+
 
 
 def plot_all():

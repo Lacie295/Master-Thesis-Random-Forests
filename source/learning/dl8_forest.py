@@ -18,6 +18,8 @@ class DL8Forest(learning.Learning):
         self.FILE = FILE
         self.NAME = NAME
         self.depth_map = {}
+        self.unanimity = []
+        self.n_estimators = []
 
     def build(self):
         super().build()
@@ -25,6 +27,8 @@ class DL8Forest(learning.Learning):
 
     def run(self):
         super().run()
+        self.unanimity.append(self.t.get_unanimity())
+        self.n_estimators.append(self.t.get_n_estimators())
 
     def write_to_file(self):
         super().write_to_file()
@@ -37,7 +41,7 @@ class Forest(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  n_estimators=10,
                  tree_class=ODTClassifier,
-                 n_samples=10,
+                 n_samples=25,
                  sampling_type="%",
                  **kwargs):
         self.estimators = []
@@ -47,9 +51,11 @@ class Forest(BaseEstimator, ClassifierMixin):
         self.sampling_type = sampling_type
         self.kwargs = kwargs
         self.is_fitted = False
+        self.unanimity = None
 
     def fit(self, X, y):
         check_X_y(X, y)
+        self.estimators = []
         sample_size = round(self.n_samples/100 * len(X)) if self.sampling_type == "%" else self.n_samples
         for i in range(self.n_estimators):
             tree = self.tree_class(**self.kwargs)
@@ -61,7 +67,9 @@ class Forest(BaseEstimator, ClassifierMixin):
 
     def predict(self, X):
         lst = np.array([t.predict(X) for t in self.estimators])
-        return [np.argmax(np.bincount(lst[:, i])) for i in range(len(lst[0]))]
+        pred = [np.argmax(np.bincount(lst[:, i])) for i in range(len(lst[0]))]
+        self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
+        return pred
 
     def check_is_fitted(self):
         return self.is_fitted
@@ -89,4 +97,10 @@ class Forest(BaseEstimator, ClassifierMixin):
             return depth_map
         else:
             return None
+
+    def get_unanimity(self):
+        return self.unanimity
+
+    def get_n_estimators(self):
+        return self.n_estimators
 

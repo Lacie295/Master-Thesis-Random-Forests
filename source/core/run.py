@@ -30,6 +30,7 @@ def main(args):
     if args.create_table and args.method:
         grapher.table(args.method)
 
+
 if __name__ == "__main__":
     parser = ap.ArgumentParser()
 
