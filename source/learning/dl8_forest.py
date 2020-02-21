@@ -2,7 +2,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y
 from sklearn.utils import resample
 import numpy as np
-from dl85 import ODTClassifier
+from dl85 import DL85Classifier
 
 from source.utils import file_manager
 from source.learning import learning
@@ -40,7 +40,7 @@ class DL8Forest(learning.Learning):
 class Forest(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  n_estimators=10,
-                 tree_class=ODTClassifier,
+                 tree_class=DL85Classifier,
                  n_samples=25,
                  sampling_type="%",
                  **kwargs):
@@ -75,7 +75,7 @@ class Forest(BaseEstimator, ClassifierMixin):
         return self.is_fitted
 
     def get_depth_map(self):
-        if self.tree_class == ODTClassifier:
+        if self.tree_class == DL85Classifier:
             depth_map = {}
             for t in self.estimators:
                 tree = t.tree_
