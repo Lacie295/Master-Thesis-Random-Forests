@@ -1,5 +1,6 @@
 from source.utils import file_manager
-from source.learning import decision_tree, random_forest, cp_tree, dl8, gradient_boosting, dl8_forest
+from source.learning import decision_tree, random_forest, cp_tree, dl8, gradient_boosting, dl8_forest, \
+    optimised_dl8_forest
 import math
 
 algo_names = {
@@ -8,6 +9,7 @@ algo_names = {
     "CP-tree": cp_tree.CPTree,
     "DL8": dl8.DL8,
     "DL8-forest": dl8_forest.DL8Forest,
+    "OptDL8-forest": optimised_dl8_forest.OptDL8Forest,
     "G-boosting": gradient_boosting.GradientBoosting
 }
 
@@ -16,7 +18,8 @@ kwargs = {
     "R-forest": {'n_estimators': 100},
     "CP-tree": {'max_depth': 4},
     "DL8": {'max_depth': 4},
-    "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "random_progressive"},
+    "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "all"},
+    "OptDL8-forest": {'n_estimators': 3, 'max_depth': 3, 'method': "all", 'attributes': "progressive"},
     "G-boosting": {'n_estimators': 100}
 }
 

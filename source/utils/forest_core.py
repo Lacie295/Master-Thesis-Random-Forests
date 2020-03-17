@@ -3,6 +3,7 @@ from sklearn.utils.validation import check_X_y
 from sklearn.utils import resample
 import numpy as np
 from dl85 import DL85Classifier
+from gurobipy import Model, GRB, quicksum
 
 
 class Forest(BaseEstimator, ClassifierMixin):
@@ -13,6 +14,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                  attributes="all",
                  n_samples=25,
                  sampling_type="%",
+                 optimised=False,
                  **kwargs):
         self.estimators = []
         self.n_estimators = n_estimators
@@ -24,10 +26,13 @@ class Forest(BaseEstimator, ClassifierMixin):
         self.unanimity = None
         self.method = method
         self.attributes = attributes
+        self.weights = []
+        self.optimised = optimised
 
     def fit(self, X, y):
         check_X_y(X, y)
         self.estimators = []
+        self.weights = []
 
         sample_size = round(self.n_samples / 100 * len(X)) if self.sampling_type == "%" else self.n_samples
         column_size = round(75 / 100 * len(X[0]))
@@ -71,14 +76,91 @@ class Forest(BaseEstimator, ClassifierMixin):
                 for i in range(len(X)):
                     X[i][attr] = 1
 
+        if self.optimised and self.tree_class == DL85Classifier:
+            pred = np.array([t.predict(X) for t in self.estimators]) * 2 - 1
+
+            cont = True
+            tree_count = self.n_estimators
+            sample_count = len(y)
+            c = np.array(y) * 2 - 1
+
+            while cont:
+                m1 = Model("tree_weight_optimiser")
+                tree_weights = [m1.addVar(vtype=GRB.CONTINUOUS, name="tree_weights " + str(t)) for t in
+                                range(tree_count)]
+                rho = m1.addVar(vtype=GRB.CONTINUOUS, name="rho", lb=float("-inf"))
+
+                m1.setObjective(rho, GRB.MAXIMIZE)
+
+                m1.addConstr(quicksum(tree_weights) == 1, name="weights = 1")
+                for i in range(sample_count):
+                    m1.addConstr(quicksum([c[i] * tree_weights[t] * pred[t, i] for t in range(tree_count)]) >= rho,
+                                 name="Constraint on sample " + str(i))
+
+                m1.setParam("DualReductions", 0)
+                m1.optimize()
+                print(tree_weights)
+                print(rho)
+                print(min([sum([w.X for w in tree_weights] * pred[:, i] * c[i]) for i in range(sample_count)]))
+
+                m2 = Model("sample_weight_optimiser")
+                sample_weights = [m2.addVar(vtype=GRB.CONTINUOUS, name="sample_weights" + str(i), ub=2/sample_count)
+                                  for i in range(sample_count)]
+                gamma = m2.addVar(vtype=GRB.CONTINUOUS, name="gamma", lb=float("-inf"))
+
+                m2.setObjective(gamma, GRB.MINIMIZE)
+
+                m2.addConstr(quicksum(sample_weights) == 1, name="weights = 1")
+                for t in range(tree_count):
+                    m2.addConstr(
+                        quicksum([c[i] * sample_weights[i] * pred[t, i] for i in range(sample_count)]) <= gamma,
+                        name="Constraint on tree " + str(t))
+
+                m2.optimize()
+                print(sample_weights)
+                print(max([sum(c * [w.X for w in sample_weights] * pred[t, :]) for t in range(tree_count)]))
+
+                def error(tids):
+                    classes = [0, 1]
+                    supports = [0, 0]
+                    for i in tids:
+                        supports[(c[i] + 1) // 2] += sample_weights[i].X
+                    maxindex = np.argmax(supports)
+                    return sum(supports) - supports[maxindex], classes[maxindex]
+
+                tree = self.tree_class(error_function=error, **self.kwargs)
+                tree.fit(X, y)
+
+                if tree.error_ < gamma.X:
+                    self.estimators.append(tree)
+                    pred.append(tree.predict(X) * 2 - 1)
+                    tree_count += 1
+                else:
+                    weights = [w.X for w in tree_weights]
+                    estimators = list(self.estimators)
+                    self.estimators = []
+                    for w, e in zip(weights, estimators):
+                        if w != 0:
+                            self.weights.append(w)
+                            self.estimators.append(e)
+                    cont = False
+
         self.is_fitted = True
         return self
 
     def predict(self, X):
         lst = np.array([t.predict(X) for t in self.estimators])
-        pred = [np.argmax(np.bincount(lst[:, i])) for i in range(len(lst[0]))]
-        self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
-        return pred
+        if self.optimised:
+            lst = lst * 2 - 1
+            wlst = [self.weights[t] * lst[t, :] for t in range(len(self.estimators))]
+            pred = np.sum(wlst, axis=0)
+            pred = [0 if p < 0 else 1 for p in pred]
+            self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
+            return pred
+        else:
+            pred = [np.argmax(np.bincount(lst[:, i])) for i in range(len(lst[0]))]
+            self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
+            return pred
 
     def check_is_fitted(self):
         return self.is_fitted
