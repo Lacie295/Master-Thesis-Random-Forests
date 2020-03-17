@@ -1,1 +1,1 @@
-{"version": 1.2, "data/tic-tac-toe.txt 0.5": {"time": 4.99528477191925, "acc": 0.7018789144050104, "train_size": 479, "test_size": 479}}
+{"version": 1.2, "data/tic-tac-toe.txt 0.5": {"time": 1.243751311302185, "acc": 0.6540709812108558, "train_size": 479, "test_size": 479}}

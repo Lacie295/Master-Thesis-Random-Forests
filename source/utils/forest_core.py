@@ -97,14 +97,13 @@ class Forest(BaseEstimator, ClassifierMixin):
                     m1.addConstr(quicksum([c[i] * tree_weights[t] * pred[t, i] for t in range(tree_count)]) >= rho,
                                  name="Constraint on sample " + str(i))
 
-                m1.setParam("DualReductions", 0)
+                m1.setParam("LogToConsole", 0)
                 m1.optimize()
                 print(tree_weights)
                 print(rho)
-                print(min([sum([w.X for w in tree_weights] * pred[:, i] * c[i]) for i in range(sample_count)]))
 
                 m2 = Model("sample_weight_optimiser")
-                sample_weights = [m2.addVar(vtype=GRB.CONTINUOUS, name="sample_weights" + str(i), ub=2/sample_count)
+                sample_weights = [m2.addVar(vtype=GRB.CONTINUOUS, name="sample_weights " + str(i))
                                   for i in range(sample_count)]
                 gamma = m2.addVar(vtype=GRB.CONTINUOUS, name="gamma", lb=float("-inf"))
 
@@ -116,24 +115,26 @@ class Forest(BaseEstimator, ClassifierMixin):
                         quicksum([c[i] * sample_weights[i] * pred[t, i] for i in range(sample_count)]) <= gamma,
                         name="Constraint on tree " + str(t))
 
+                m2.setParam("LogToConsole", 0)
                 m2.optimize()
                 print(sample_weights)
-                print(max([sum(c * [w.X for w in sample_weights] * pred[t, :]) for t in range(tree_count)]))
+                print(gamma)
 
                 def error(tids):
                     classes = [0, 1]
                     supports = [0, 0]
                     for i in tids:
-                        supports[(c[i] + 1) // 2] += sample_weights[i].X
+                        supports[(c[i] + 1) // 2] += int(sample_count * sample_weights[i].X)
                     maxindex = np.argmax(supports)
                     return sum(supports) - supports[maxindex], classes[maxindex]
 
                 tree = self.tree_class(error_function=error, **self.kwargs)
                 tree.fit(X, y)
+                print(tree.accuracy_)
 
-                if tree.error_ < gamma.X:
+                if tree.accuracy_ > gamma.X:
                     self.estimators.append(tree)
-                    pred.append(tree.predict(X) * 2 - 1)
+                    pred = np.vstack([pred, np.array(tree.predict(X)) * 2 - 1])
                     tree_count += 1
                 else:
                     weights = [w.X for w in tree_weights]
