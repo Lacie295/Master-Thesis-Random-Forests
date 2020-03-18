@@ -1,7 +1,6 @@
 from source.utils import file_manager
 from source.learning import decision_tree, random_forest, cp_tree, dl8, gradient_boosting, dl8_forest, \
     optimised_dl8_forest
-import math
 
 algo_names = {
     "D-tree": decision_tree.DecisionTree,
@@ -32,20 +31,18 @@ def build_algorithms(algos, b=False, percent=0.5):
 
     for data_set in file_manager.data_sets.values():
         print(data_set.file)
-        for algo in algos:
-            if algo == "DL8":
-                kwargs[algo]["max_depth"] = int(0.7 * len(file_manager.get_converted(data_set.file)[0]))
-            d = algo_names[algo](data_set, b=b, percent=percent, **(kwargs[algo]))
-            discriminants[algo][data_set.file] = d
-            if not b:
-                d.read_from_file()
-            if not d.done:
-                for i in range(10):
+        for i in range(10):
+            data_set.split(percent)
+            for algo in algos:
+                d = algo_names[algo](data_set, b=b, percent=percent, **(kwargs[algo]))
+                discriminants[algo][data_set.file] = d
+                if not b:
+                    d.read_from_file()
+                if not d.done:
                     print("Pass #" + str(i + 1) + " on " + d.NAME)
-                    data_set.split(percent)
                     d.build()
                     d.run()
-            d.write_to_file()
+                d.write_to_file()
 
 
 def build_all(b=False, percent=0.5):
