@@ -21,6 +21,7 @@ class Learning(ABC):
 
     @abstractmethod
     def build(self):
+        # Fit the classifier to the data, using the provided algorithm
         if not self.done:
             self.size = len(self.data_set.train)
             t = time.time()
@@ -31,6 +32,7 @@ class Learning(ABC):
 
     @abstractmethod
     def run(self):
+        # Predict on the data set
         if not self.done:
             self.predict = self.t.predict(self.data_set.test)
             d = self.data_set.test_classes
@@ -44,6 +46,7 @@ class Learning(ABC):
 
     @abstractmethod
     def write_to_file(self):
+        # Write data to file
         print(self.NAME + " prediction rate on " + self.data_set.file + " on " + str(self.n_runs) + " runs: " +
               str(self.avg_acc))
         print("Build time on " + self.data_set.file + " on " + str(self.n_builds) + " builds: " +
@@ -56,6 +59,7 @@ class Learning(ABC):
 
     @abstractmethod
     def read_from_file(self):
+        # Read from file if exists
         if not self.done:
             data = file_manager.read_from_db(self.FILE, self.data_set.file + " " + str(self.percent))
             if data:

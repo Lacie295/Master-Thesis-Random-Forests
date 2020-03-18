@@ -51,6 +51,7 @@ def read(files):
 
 
 def parse(file):
+    # Parse the data files into a DataSet object
     lines = file.readlines()
     d = DataSet(file.name)
     reading_data = False

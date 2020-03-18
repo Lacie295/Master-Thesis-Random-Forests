@@ -1,17 +1,19 @@
 import plotly.graph_objects as go
 from source.utils import learning_manager, file_manager
-import numpy as np
 
 
 def plot(algos):
     print("Building graphs.")
+    # Create a graph for classification accuracy and for build time
     g_acc = go.Figure()
     g_time = go.Figure()
     for algo in algos:
+        # For each discriminant create a line in the graoh
         discriminant = learning_manager.discriminants[algo]
         datas = []
         name = ""
 
+        # Create a list of assiciated accuracy, time and sample size for all files
         for file in discriminant:
             data = discriminant[file]
             acc = data.avg_acc
@@ -20,14 +22,17 @@ def plot(algos):
             datas.append((acc, time, size))
             name = data.NAME
 
+        # Sort data by sample size
         datas = sorted(datas, key=lambda i: i[2])
 
+        # Create individual accuracy, time and size arrays and add them to their respective plots.
         accs = [i[0] for i in datas]
         times = [i[1] for i in datas]
         sizes = [i[2] for i in datas]
         g_acc.add_trace(go.Scatter(x=sizes, y=accs, name=name))
         g_time.add_trace(go.Scatter(x=sizes, y=times, name=name))
 
+    # Make the graph look nice
     g_acc.update_layout(title='Average accuracy by size of data',
                         xaxis_title='Training Data Size',
                         yaxis_title='Prediction Accuracy')
@@ -41,13 +46,17 @@ def plot(algos):
     g_acc.write_image("plots/acc.png")
     g_time.write_image("plots/time.png")
 
+    # Make the DL8-forest specific graphs
     if "DL8-forest" in algos:
         discriminant = learning_manager.discriminants["DL8-forest"]
         for file in discriminant:
+            # Start with the attribute spread graph
             layout = go.Layout(title='Frequency of attributes by depth',
                                xaxis=dict(type='category', title='Attribute number (sorted by total %'),
                                yaxis=dict(title='Frequency (%)'))
             g_spread = go.Figure(layout=layout)
+
+            # Get the data
             data = discriminant[file]
             depth_map = {}
             total = {}
@@ -55,6 +64,8 @@ def plot(algos):
             total_count = 0
             depth_count = {}
 
+            # Flatten the depth_map of each iteration over the file (such that depth_map[d] contains all attributes of
+            # all trees at depth d)
             for i in data.depth_map:
                 d = data.depth_map[i]
                 for depth in d:
@@ -66,6 +77,7 @@ def plot(algos):
                         depth_count[depth] += attrs[attr]
                         total_count += attrs[attr]
 
+            # Transform the depth_map counts into ratios and keep track of the total ratio of each attribute
             for i in data.depth_map:
                 d = data.depth_map[i]
                 for depth in d:
@@ -83,6 +95,7 @@ def plot(algos):
                         else:
                             total[attr] += 100 * attrs[attr] / total_count
 
+            # Add a trace for each depth, making sure it's sorted by total attribute ratio
             for depth in depth_map:
                 keys = [k for k, v in sorted(total.items(), key=lambda item: -item[1])]
                 values = [depth_map[depth][k] if k in depth_map[depth] else 0 for k in keys]
@@ -92,14 +105,17 @@ def plot(algos):
 
             # unanimity
 
+            # Get the unanimity for the file
             unanimity = data.unanimity
             n_estimators = data.n_estimators
 
+            # Transform the list of unanimity ratios into a count of unanimity
             unan = [0] * (n_estimators[0] + 1)
             for row in unanimity:
                 for col in row:
                     unan[col] += 1
 
+            # Add unanimity to graph
             layout = go.Layout(title='Tree unanimity in DL8Forest',
                                xaxis=dict(type='category', title='Number of trees in agreement'),
                                yaxis=dict(title='Frequency (#)'))
@@ -108,12 +124,12 @@ def plot(algos):
             g_unan.write_image("plots/unan/unan_" + file.split("/")[-1].split(".")[0] + ".png")
 
 
-
 def plot_all():
     plot(learning_manager.algo_names.keys())
 
 
 def table(algos):
+    # Generate a latex table containing all the accuracies for each algorithm
     print("\\begin{tabular}{ll|" + ("l" * len(algos)) + "}")
     s = "Dataset & Size"
     for algo in algos:

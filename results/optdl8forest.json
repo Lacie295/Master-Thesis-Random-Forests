@@ -1,1 +1,1 @@
-{"version": 1.2, "data/tic-tac-toe.txt 0.5": {"time": 0.38655173778533936, "acc": 0.6649269311064719, "train_size": 479, "test_size": 479}, "data/tic-tac-toe.txt 0.1": {"time": 253.0765359401703, "acc": 0.831981460023175, "train_size": 95, "test_size": 863}}
+{"version": 1.2, "data/tic-tac-toe.txt 0.5": {"time": 0.38655173778533936, "acc": 0.6649269311064719, "train_size": 479, "test_size": 479}, "data/tic-tac-toe.txt 0.1": {"time": 326.91233682632446, "acc": 0.7427578215527231, "train_size": 95, "test_size": 863}}
