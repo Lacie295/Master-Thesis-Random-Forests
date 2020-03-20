@@ -139,7 +139,7 @@ def plot(algos):
                     accs = data.check_acc_with_n_trees(n)
                     acc.append(accs)
 
-                layout = go.Layout(title='Forest accuracy with n trees',
+                layout = go.Layout(title='Forest accuracy with n trees (on training s',
                                    xaxis=dict(rangemode="tozero", title='Number of trees used'),
                                    yaxis=dict(rangemode="tozero", title='Prediction accuracy'))
                 g_f_acc = go.Figure(layout=layout)

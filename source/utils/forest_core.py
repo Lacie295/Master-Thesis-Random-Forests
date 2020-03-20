@@ -4,6 +4,7 @@ from sklearn.utils import resample
 import numpy as np
 from dl85 import DL85Classifier
 from gurobipy import Model, GRB, quicksum
+import copy
 
 
 class Forest(BaseEstimator, ClassifierMixin):
@@ -32,10 +33,11 @@ class Forest(BaseEstimator, ClassifierMixin):
         self.optimised = optimised
         self.train_X = None
         self.train_y = None
+        self.prev_weights = None
 
     def fit(self, X, y):
         check_X_y(X, y)
-        orig_X = np.array(X)
+        orig_X = copy.deepcopy(X)
         self.estimators = []
         self.weights = []
 
@@ -58,8 +60,10 @@ class Forest(BaseEstimator, ClassifierMixin):
                 sample, classes = X, y
 
             if self.attributes == "random":
-                # TODO: fix
-                pass
+                columns = resample(range(len(sample[0])), n_samples=column_size, replace=False)
+                for col in columns:
+                    for j in range(len(sample)):
+                        sample[j][col] = 1
 
             # Create the tree
             tree.fit(sample, classes)
@@ -72,8 +76,8 @@ class Forest(BaseEstimator, ClassifierMixin):
                 attr = root['feat']
 
                 # Set attribute to 1 in order for it to never be selected by the tree
-                for i in range(len(X)):
-                    X[i][attr] = 1
+                for j in range(len(X)):
+                    X[j][attr] = 1
 
             if self.attributes == "random_progressive":
                 root = tree.tree_
@@ -94,19 +98,19 @@ class Forest(BaseEstimator, ClassifierMixin):
                 # Get the randomly selected attribute
                 attr = pred['feat']
                 # Set attribute to 1 in order for it to never be selected by the tree
-                for i in range(len(X)):
-                    X[i][attr] = 1
+                for j in range(len(X)):
+                    X[j][attr] = 1
 
         X = orig_X
 
         if self.optimised and self.tree_class == DL85Classifier:
             # Predict on all existing trees
-            pred = np.array([t.predict(X) for t in self.estimators]) * 2 - 1
+            pred = [[-1 if p == 0 else 1 for p in t.predict(X)] for t in self.estimators]
 
             cont = True
             tree_count = self.n_estimators
             sample_count = len(y)
-            c = np.array(y) * 2 - 1
+            c = [-1 if p == 0 else 1 for p in y]
 
             # Used to accelerate the dual
             prev_sample_weights = None
@@ -120,9 +124,9 @@ class Forest(BaseEstimator, ClassifierMixin):
                 def error(tids):
                     all_classes = [0, 1]
                     supports = [0, 0]
-                    for i in tids:
-                        supports[(c[i] + 1) // 2] += int(sample_count * sample_weights[i])
-                    maxindex = np.argmax(supports)
+                    for tid in tids:
+                        supports[(c[tid] + 1) // 2] += int(sample_count * sample_weights[i])
+                    maxindex = supports.index(max(supports))
                     return sum(supports) - supports[maxindex], all_classes[maxindex]
 
                 # Fit a new tree with the new sample weights
@@ -135,14 +139,14 @@ class Forest(BaseEstimator, ClassifierMixin):
                         cont = False
 
                 # Calculate the new tree's gamma value
-                tree_pred = np.array(tree.predict(X)) * 2 - 1
-                accuracy = sum(c * sample_weights * tree_pred)
+                tree_pred = [p * 2 - 1 for p in tree.predict(X)]
+                accuracy = sum([c[i] * sample_weights[i] * tree_pred[i] for i in range(sample_count)])
                 print(accuracy, tree.accuracy_, gamma)
 
                 if accuracy > gamma and cont:
                     # If the tree is good enough, add it to the estimators and continue
                     self.estimators.append(tree)
-                    pred = np.vstack([pred, tree_pred])
+                    pred.append(tree_pred)
                     tree_count += 1
                 else:
                     # If the tree isn't good enough, solve the primal and save the trees and weights
@@ -185,16 +189,15 @@ class Forest(BaseEstimator, ClassifierMixin):
             return self.predict(X)
 
         estimators = self.all_estimators[:n]
-        pred = np.array([t.predict(self.train_X) for t in estimators]) * 2 - 1
-        c = np.array(self.train_y) * 2 - 1
+        pred = [[-1 if p == 0 else 1 for p in t.predict(self.train_X)] for t in estimators]
+        c = [-1 if p == 0 else 1 for p in self.train_y]
 
-        weights, _ = calculate_tree_weights(pred, c)
+        weights, _ = calculate_tree_weights(pred, c, self.prev_weights)
+        self.prev_weights = weights
 
-        lst = np.array([t.predict(X) for t in estimators])
-        lst = lst * 2 - 1
-        wlst = [weights[t] * lst[t, :] for t in range(len(estimators))]
-        pred = np.sum(wlst, axis=0)
-        pred = [0 if p < 0 else 1 for p in pred]
+        lst = [[-1 if p == 0 else 1 for p in t.predict(X)] for t in estimators]
+        wlst = [[weights[t] * lst[t][i] for i in range(len(lst[t]))] for t in range(len(estimators))]
+        pred = [0 if sum(i) < 0 else 1 for i in zip(*wlst)]
         self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
         return pred
 
@@ -254,7 +257,7 @@ def calculate_sample_weights(pred, c, prev_sample_weights=None):
     m.addConstr(quicksum(sample_weights) == 1, name="weights = 1")
     for t in range(tree_count):
         m.addConstr(
-            quicksum([c[i] * sample_weights[i] * pred[t, i] for i in range(sample_count)]) <= gamma,
+            quicksum([c[i] * sample_weights[i] * pred[t][i] for i in range(sample_count)]) <= gamma,
             name="Constraint on tree " + str(t))
 
     m.setParam("LogToConsole", 0)
@@ -265,20 +268,26 @@ def calculate_sample_weights(pred, c, prev_sample_weights=None):
     return [w.X for w in sample_weights], gamma.X
 
 
-def calculate_tree_weights(pred, c):
+def calculate_tree_weights(pred, c, prev_tree_weights=None):
     tree_count = len(pred)
     sample_count = len(c)
 
     m = Model("tree_weight_optimiser")
     tree_weights = [m.addVar(vtype=GRB.CONTINUOUS, name="tree_weights " + str(t)) for t in
                     range(tree_count)]
+
+    # Set tree weights to given value
+    if prev_tree_weights is not None:
+        for i in range(min(len(prev_tree_weights), len(tree_weights))):
+            tree_weights[i].setAttr("Start", prev_tree_weights[i])
+
     rho = m.addVar(vtype=GRB.CONTINUOUS, name="rho", lb=float("-inf"))
 
     m.setObjective(rho, GRB.MAXIMIZE)
 
     m.addConstr(quicksum(tree_weights) == 1, name="weights = 1")
     for i in range(sample_count):
-        m.addConstr(quicksum([c[i] * tree_weights[t] * pred[t, i] for t in range(tree_count)]) >= rho,
+        m.addConstr(quicksum([c[i] * tree_weights[t] * pred[t][i] for t in range(tree_count)]) >= rho,
                      name="Constraint on sample " + str(i))
 
     m.setParam("LogToConsole", 0)
