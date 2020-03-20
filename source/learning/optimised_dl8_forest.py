@@ -35,7 +35,7 @@ class OptDL8Forest(learning.Learning):
         f = self.t[self.n_builds - 1]
         self.predict = np.array(f.predict(self.data_set.test))
         d = np.array(self.data_set.test_classes)
-        acc = (d == self.predict).sum()
+        acc = (d == self.predict).sum() / len(d)
         self.avg_acc = (self.avg_acc * self.n_runs + acc) / (self.n_runs + 1)
         self.n_runs += 1
         self.unanimity.append(f.get_unanimity())

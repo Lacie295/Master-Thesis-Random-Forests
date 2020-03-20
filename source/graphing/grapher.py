@@ -1,5 +1,6 @@
 import plotly.graph_objects as go
 from source.utils import learning_manager, file_manager
+import numpy as np
 
 
 def plot(algos):
@@ -47,81 +48,108 @@ def plot(algos):
     g_time.write_image("plots/time.png")
 
     # Make the DL8-forest specific graphs
-    if "DL8-forest" in algos:
-        discriminant = learning_manager.discriminants["DL8-forest"]
-        for file in discriminant:
-            # Start with the attribute spread graph
-            layout = go.Layout(title='Frequency of attributes by depth',
-                               xaxis=dict(type='category', title='Attribute number (sorted by total %'),
-                               yaxis=dict(title='Frequency (%)'))
-            g_spread = go.Figure(layout=layout)
+    for algo in algos:
+        if algo == "DL8-forest" or algo == "OptDL8-forest":
+            discriminant = learning_manager.discriminants[algo]
+            for file in discriminant:
+                # Start with the attribute spread graph
+                layout = go.Layout(title='Frequency of attributes by depth',
+                                   xaxis=dict(type='category', title='Attribute number (sorted by total %'),
+                                   yaxis=dict(title='Frequency (%)'))
+                g_spread = go.Figure(layout=layout)
 
-            # Get the data
-            data = discriminant[file]
-            depth_map = {}
-            total = {}
+                # Get the data
+                data = discriminant[file]
+                depth_map = {}
+                total = {}
 
-            total_count = 0
-            depth_count = {}
+                total_count = 0
+                depth_count = {}
 
-            # Flatten the depth_map of each iteration over the file (such that depth_map[d] contains all attributes of
-            # all trees at depth d)
-            for i in data.depth_map:
-                d = data.depth_map[i]
-                for depth in d:
-                    attrs = d[depth]
-                    if depth not in depth_count:
-                        depth_count[depth] = 0
+                # Flatten the depth_map of each iteration over the file (such that depth_map[d] contains all attributes of
+                # all trees at depth d)
+                for i in data.depth_map:
+                    d = data.depth_map[i]
+                    for depth in d:
+                        attrs = d[depth]
+                        if depth not in depth_count:
+                            depth_count[depth] = 0
 
-                    for attr in attrs:
-                        depth_count[depth] += attrs[attr]
-                        total_count += attrs[attr]
+                        for attr in attrs:
+                            depth_count[depth] += attrs[attr]
+                            total_count += attrs[attr]
 
-            # Transform the depth_map counts into ratios and keep track of the total ratio of each attribute
-            for i in data.depth_map:
-                d = data.depth_map[i]
-                for depth in d:
-                    attrs = d[depth]
-                    if depth not in depth_map:
-                        depth_map[depth] = {}
+                # Transform the depth_map counts into ratios and keep track of the total ratio of each attribute
+                for i in data.depth_map:
+                    d = data.depth_map[i]
+                    for depth in d:
+                        attrs = d[depth]
+                        if depth not in depth_map:
+                            depth_map[depth] = {}
 
-                    for attr in attrs:
-                        if attr not in depth_map[depth]:
-                            depth_map[depth][attr] = 100 * attrs[attr] / depth_count[depth]
-                        else:
-                            depth_map[depth][attr] += 100 * attrs[attr] / depth_count[depth]
-                        if attr not in total:
-                            total[attr] = 100 * attrs[attr] / total_count
-                        else:
-                            total[attr] += 100 * attrs[attr] / total_count
+                        for attr in attrs:
+                            if attr not in depth_map[depth]:
+                                depth_map[depth][attr] = 100 * attrs[attr] / depth_count[depth]
+                            else:
+                                depth_map[depth][attr] += 100 * attrs[attr] / depth_count[depth]
+                            if attr not in total:
+                                total[attr] = 100 * attrs[attr] / total_count
+                            else:
+                                total[attr] += 100 * attrs[attr] / total_count
 
-            # Add a trace for each depth, making sure it's sorted by total attribute ratio
-            for depth in depth_map:
-                keys = [k for k, v in sorted(total.items(), key=lambda item: -item[1])]
-                values = [depth_map[depth][k] if k in depth_map[depth] else 0 for k in keys]
-                g_spread.add_trace(go.Bar(x=keys, y=values, name="Depth " + str(depth)))
+                # Add a trace for each depth, making sure it's sorted by total attribute ratio
+                for depth in depth_map:
+                    keys = [k for k, v in sorted(total.items(), key=lambda item: -item[1])]
+                    values = [depth_map[depth][k] if k in depth_map[depth] else 0 for k in keys]
+                    g_spread.add_trace(go.Bar(x=keys, y=values, name="Depth " + str(depth)))
 
-            g_spread.write_image("plots/spread/spread_" + file.split("/")[-1].split(".")[0] + ".png")
+                g_spread.write_image("plots/spread/spread_" + file.split("/")[-1].split(".")[0] + ".png")
 
-            # unanimity
+        if algo == "DL8-forest":
+            discriminant = learning_manager.discriminants[algo]
+            for file in discriminant:
+                data = discriminant[file]
 
-            # Get the unanimity for the file
-            unanimity = data.unanimity
-            n_estimators = data.n_estimators
+                # Get the unanimity for the file
+                unanimity = data.unanimity
+                n_estimators = data.n_estimators
 
-            # Transform the list of unanimity ratios into a count of unanimity
-            unan = [0] * (n_estimators[0] + 1)
-            for row in unanimity:
-                for col in row:
-                    unan[col] += 1
+                # Transform the list of unanimity ratios into a count of unanimity
+                unan = [0] * (n_estimators[0] + 1)
+                for row in unanimity:
+                    for col in row:
+                        unan[col] += 1
 
-            # Add unanimity to graph
-            layout = go.Layout(title='Tree unanimity in DL8Forest',
-                               xaxis=dict(type='category', title='Number of trees in agreement'),
-                               yaxis=dict(title='Frequency (#)'))
-            g_unan = go.Figure(layout=layout)
-            g_unan.add_trace(go.Bar(x=list(range(n_estimators[0] + 1)), y=unan))
-            g_unan.write_image("plots/unan/unan_" + file.split("/")[-1].split(".")[0] + ".png")
+                # Add unanimity to graph
+                layout = go.Layout(title='Tree unanimity in DL8Forest',
+                                   xaxis=dict(type='category', title='Number of trees in agreement'),
+                                   yaxis=dict(title='Frequency (#)'))
+                g_unan = go.Figure(layout=layout)
+                g_unan.add_trace(go.Scatter(x=list(range(n_estimators[0] + 1)), y=unan))
+                g_unan.write_image("plots/unan/unan_" + file.split("/")[-1].split(".")[0] + ".png")
+
+        if algo == "OptDL8-forest":
+            discriminant = learning_manager.discriminants[algo]
+            for file in discriminant:
+                data = discriminant[file]
+                ns = list(range(1, max(data.n_estimators) + 1))
+                acc = []
+
+                for n in ns:
+                    accs = data.check_acc_with_n_trees(n)
+                    acc.append(accs)
+
+                layout = go.Layout(title='Forest accuracy with n trees',
+                                   xaxis=dict(rangemode="tozero", title='Number of trees used'),
+                                   yaxis=dict(rangemode="tozero", title='Prediction accuracy'))
+                g_f_acc = go.Figure(layout=layout)
+                acc = np.array(acc)
+
+                for i in range(acc.shape[1]):
+                    n_estimators = data.n_estimators[i]
+                    g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=acc[:n_estimators, i], mode='lines',
+                                                 name="Forest #" + str(i)))
+                g_f_acc.write_image("plots/acc/acc_" + file.split("/")[-1].split(".")[0] + ".png")
 
 
 def plot_all():

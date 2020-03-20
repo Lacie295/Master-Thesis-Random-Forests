@@ -30,12 +30,17 @@ class Forest(BaseEstimator, ClassifierMixin):
         self.weights = []
         self.all_weights = []
         self.optimised = optimised
+        self.train_X = None
+        self.train_y = None
 
     def fit(self, X, y):
         check_X_y(X, y)
         orig_X = np.array(X)
         self.estimators = []
         self.weights = []
+
+        self.train_X = X
+        self.train_y = y
 
         # Used for random sample sampling
         sample_size = round(self.n_samples / 100 * len(X)) if self.sampling_type == "%" else self.n_samples
@@ -152,6 +157,8 @@ class Forest(BaseEstimator, ClassifierMixin):
                         if w != 0:
                             self.weights.append(w)
                             self.estimators.append(e)
+
+                    self.n_estimators = len(self.estimators)
                     cont = False
 
         self.is_fitted = True
@@ -171,6 +178,25 @@ class Forest(BaseEstimator, ClassifierMixin):
             pred = [np.argmax(np.bincount(lst[:, i])) for i in range(len(lst[0]))]
             self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
             return pred
+
+    def predict_first_n_trees(self, X, n):
+        # Run a (weighted) prediction on all trees
+        if n >= len(self.all_estimators):
+            return self.predict(X)
+
+        estimators = self.all_estimators[:n]
+        pred = np.array([t.predict(self.train_X) for t in estimators]) * 2 - 1
+        c = np.array(self.train_y) * 2 - 1
+
+        weights, _ = calculate_tree_weights(pred, c)
+
+        lst = np.array([t.predict(X) for t in estimators])
+        lst = lst * 2 - 1
+        wlst = [weights[t] * lst[t, :] for t in range(len(estimators))]
+        pred = np.sum(wlst, axis=0)
+        pred = [0 if p < 0 else 1 for p in pred]
+        self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
+        return pred
 
     def check_is_fitted(self):
         return self.is_fitted

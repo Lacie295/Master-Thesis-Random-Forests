@@ -30,19 +30,23 @@ def build_algorithms(algos, b=False, percent=0.5):
         discriminants[algo] = {}
 
     for data_set in file_manager.data_sets.values():
+        for algo in algos:
+            d = algo_names[algo](data_set, b=b, percent=percent, **(kwargs[algo]))
+            discriminants[algo][data_set.file] = d
+            if not b:
+                d.read_from_file()
         print(data_set.file)
         for i in range(10):
             data_set.split(percent)
             for algo in algos:
-                d = algo_names[algo](data_set, b=b, percent=percent, **(kwargs[algo]))
-                discriminants[algo][data_set.file] = d
-                if not b:
-                    d.read_from_file()
+                d = discriminants[algo][data_set.file]
                 if not d.done:
                     print("Pass #" + str(i + 1) + " on " + d.NAME)
                     d.build()
                     d.run()
-                d.write_to_file()
+        for algo in algos:
+            d = discriminants[algo][data_set.file]
+            d.write_to_file()
 
 
 def build_all(b=False, percent=0.5):
