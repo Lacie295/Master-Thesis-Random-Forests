@@ -126,7 +126,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                     supports = [0, 0]
                     for tid in tids:
                         supports[(c[tid] + 1) // 2] += int(sample_count * sample_weights[i])
-                    maxindex = supports.index(max(supports))
+                    maxindex = np.argmax(supports)
                     return sum(supports) - supports[maxindex], all_classes[maxindex]
 
                 # Fit a new tree with the new sample weights
@@ -139,7 +139,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                         cont = False
 
                 # Calculate the new tree's gamma value
-                tree_pred = [p * 2 - 1 for p in tree.predict(X)]
+                tree_pred = [-1 if p == 0 else 1 for p in tree.predict(X)]
                 accuracy = sum([c[i] * sample_weights[i] * tree_pred[i] for i in range(sample_count)])
                 print(accuracy, tree.accuracy_, gamma)
 
@@ -198,7 +198,8 @@ class Forest(BaseEstimator, ClassifierMixin):
         lst = [[-1 if p == 0 else 1 for p in t.predict(X)] for t in estimators]
         wlst = [[weights[t] * lst[t][i] for i in range(len(lst[t]))] for t in range(len(estimators))]
         pred = [0 if sum(i) < 0 else 1 for i in zip(*wlst)]
-        self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
+        self.unanimity = [np.count_nonzero([lst[t][i] for t in range(len(estimators))] == pred[i]) for i in
+                          range(len(lst[0]))]
         return pred
 
     def check_is_fitted(self):
@@ -288,7 +289,7 @@ def calculate_tree_weights(pred, c, prev_tree_weights=None):
     m.addConstr(quicksum(tree_weights) == 1, name="weights = 1")
     for i in range(sample_count):
         m.addConstr(quicksum([c[i] * tree_weights[t] * pred[t][i] for t in range(tree_count)]) >= rho,
-                     name="Constraint on sample " + str(i))
+                    name="Constraint on sample " + str(i))
 
     m.setParam("LogToConsole", 0)
     m.optimize()

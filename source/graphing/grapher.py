@@ -1,4 +1,5 @@
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from source.utils import learning_manager, file_manager
 import numpy as np
 
@@ -131,24 +132,48 @@ def plot(algos):
         if algo == "OptDL8-forest":
             discriminant = learning_manager.discriminants[algo]
             for file in discriminant:
+                print("graphing:" + file)
                 data = discriminant[file]
                 ns = list(range(1, max(data.n_estimators) + 1))
                 acc = []
 
                 for n in ns:
+                    print("n = " + str(n))
                     accs = data.check_acc_with_n_trees(n)
                     acc.append(accs)
 
-                layout = go.Layout(title='Forest accuracy with n trees (on training s',
+                layout = go.Layout(title='Forest accuracy with n trees',
                                    xaxis=dict(rangemode="tozero", title='Number of trees used'),
                                    yaxis=dict(rangemode="tozero", title='Prediction accuracy'))
-                g_f_acc = go.Figure(layout=layout)
+                subplot_titles = ["Test accuracy on forest " + str(i) for i in range(len(data.n_estimators))]
+                subplot_titles.extend(["Train accuracy on forest " + str(i) for i in range(len(data.n_estimators))])
+                g_f_acc = make_subplots(rows=2, cols=len(data.n_estimators),
+                                        shared_xaxes=True, shared_yaxes=True, x_title='Number of trees used',
+                                        y_title='Prediction accuracy',
+                                        subplot_titles=tuple(subplot_titles))
+                g_f_acc.update_layout(height=1200, width=200 + 500 * len(data.n_estimators),
+                                      title_text='Forest accuracy with n trees on ' + file)
                 acc = np.array(acc)
 
                 for i in range(acc.shape[1]):
                     n_estimators = data.n_estimators[i]
                     g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=acc[:n_estimators, i], mode='lines',
-                                                 name="Forest #" + str(i)))
+                                                 name="Forest #" + str(i)), row=1, col=i + 1)
+
+                acc = []
+
+                for n in ns:
+                    print("n = " + str(n))
+                    accs = data.check_train_acc_with_n_trees(n)
+                    acc.append(accs)
+
+                acc = np.array(acc)
+
+                for i in range(acc.shape[1]):
+                    n_estimators = data.n_estimators[i]
+                    g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=acc[:n_estimators, i], mode='lines',
+                                                 name="Forest #" + str(i)), row=2, col=i + 1)
+
                 g_f_acc.write_image("plots/acc/acc_" + file.split("/")[-1].split(".")[0] + ".png")
 
 
