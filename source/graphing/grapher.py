@@ -2,6 +2,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from source.utils import learning_manager, file_manager
 import numpy as np
+import sys
 
 
 def plot(algos):
@@ -138,9 +139,11 @@ def plot(algos):
                 acc = []
 
                 for n in ns:
-                    print("n = " + str(n))
+                    sys.stdout.write("\rn = " + str(n))
+                    sys.stdout.flush()
                     accs = data.check_acc_with_n_trees(n)
                     acc.append(accs)
+                print()
 
                 layout = go.Layout(title='Forest accuracy with n trees',
                                    xaxis=dict(rangemode="tozero", title='Number of trees used'),
@@ -163,9 +166,11 @@ def plot(algos):
                 acc = []
 
                 for n in ns:
-                    print("n = " + str(n))
-                    accs = data.check_train_acc_with_n_trees(n)
+                    sys.stdout.write("\rn = " + str(n))
+                    sys.stdout.flush()
+                    accs = data.check_acc_with_n_trees(n, test=False)
                     acc.append(accs)
+                print()
 
                 acc = np.array(acc)
 

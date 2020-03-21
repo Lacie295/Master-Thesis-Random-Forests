@@ -46,14 +46,9 @@ class OptDL8Forest(learning.Learning):
     def read_from_file(self):
         super().read_from_file()
 
-    def check_acc_with_n_trees(self, n):
-        d = self.data_set.test_classes
-        pred = [f.predict_first_n_trees(self.data_set.test, n) for f in self.t]
-        return [sum([1 if pred[t][i] == d[i] else 0 for i in range(len(d))]) / len(d)
-                for t in range(len(self.t))]
-
-    def check_train_acc_with_n_trees(self, n):
-        d = self.data_set.train_classes
-        pred = [f.predict_first_n_trees(self.data_set.train, n) for f in self.t]
-        return [sum([1 if pred[t][i] == d[i] else 0 for i in range(len(d))]) / len(d)
+    def check_acc_with_n_trees(self, n, test=True):
+        y = self.data_set.test_classes if test else self.data_set.train_classes
+        X = self.data_set.test if test else self.data_set.train
+        pred = [f.predict_first_n_trees(X, n) for f in self.t]
+        return [sum([1 if pred[t][i] == y[i] else 0 for i in range(len(y))]) / len(y)
                 for t in range(len(self.t))]
