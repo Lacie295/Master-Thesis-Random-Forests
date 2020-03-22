@@ -2,7 +2,6 @@ from source.utils import file_manager
 from source.utils.forest_core import Forest
 from source.learning import learning
 import time
-import numpy as np
 
 NAME = "OptDL8Forest"
 FILE = "optdl8forest"
@@ -33,9 +32,9 @@ class OptDL8Forest(learning.Learning):
 
     def run(self):
         f = self.t[self.n_builds - 1]
-        self.predict = np.array(f.predict(self.data_set.test))
-        d = np.array(self.data_set.test_classes)
-        acc = (d == self.predict).sum() / len(d)
+        self.predict = f.predict(self.data_set.test)
+        y = self.data_set.test_classes
+        acc = sum([1 if self.predict[i] == y[i] else 0 for i in range(len(y))]) / len(y)
         self.avg_acc = (self.avg_acc * self.n_runs + acc) / (self.n_runs + 1)
         self.n_runs += 1
         self.unanimity.append(f.get_unanimity())

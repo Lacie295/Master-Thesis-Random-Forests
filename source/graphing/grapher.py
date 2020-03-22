@@ -1,7 +1,6 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from source.utils import learning_manager, file_manager
-import numpy as np
 import sys
 
 
@@ -156,9 +155,8 @@ def plot(algos):
                                         subplot_titles=tuple(subplot_titles))
                 g_f_acc.update_layout(height=1200, width=200 + 500 * len(data.n_estimators),
                                       title_text='Forest accuracy with n trees on ' + file)
-                acc = np.array(acc)
 
-                for i in range(acc.shape[1]):
+                for i in range(len(acc[0])):
                     n_estimators = data.n_estimators[i]
                     g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=acc[:n_estimators, i], mode='lines',
                                                  name="Forest #" + str(i)), row=1, col=i + 1)
@@ -172,9 +170,7 @@ def plot(algos):
                     acc.append(accs)
                 print()
 
-                acc = np.array(acc)
-
-                for i in range(acc.shape[1]):
+                for i in range(len(acc[0])):
                     n_estimators = data.n_estimators[i]
                     g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=acc[:n_estimators, i], mode='lines',
                                                  name="Forest #" + str(i)), row=2, col=i + 1)

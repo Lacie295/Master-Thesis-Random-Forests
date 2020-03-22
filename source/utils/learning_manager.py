@@ -18,7 +18,7 @@ kwargs = {
     "CP-tree": {'max_depth': 4},
     "DL8": {'max_depth': 4},
     "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "all"},
-    "OptDL8-forest": {'n_estimators': 20, 'max_depth': 3, 'method': "all", 'attributes': "progressive"},
+    "OptDL8-forest": {'n_estimators': 1, 'max_depth': 3, 'method': "all", 'attributes': "progressive"},
     "G-boosting": {'n_estimators': 100}
 }
 

@@ -1,7 +1,8 @@
+import random
+
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y
 from sklearn.utils import resample
-import numpy as np
 from dl85 import DL85Classifier
 from gurobipy import Model, GRB, quicksum
 import copy
@@ -100,7 +101,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                 # Get a random child in the tree. Each node at depth d has a chance 1/3^d to be selected. Any leaf's
                 # parent has a 1/3^(d-1) chance.
                 while 'class' not in root:
-                    c = np.random.randint(0, 2)
+                    c = random.randrange(0, 2)
                     pred = root
                     if c == 0:
                         break
@@ -160,7 +161,7 @@ class Forest(BaseEstimator, ClassifierMixin):
 
                 sys.stdout.write(
                     "\rgamma: {0:.4f}\trho: {1:.4f}\t accuracy: {2:.4f}\tn_trees: {3:d}".format(gamma, rho, accuracy,
-                                                                                             tree_count))
+                                                                                                tree_count))
 
                 if accuracy > gamma and cont:
                     # If the tree is good enough, add it to the estimators and continue
@@ -187,17 +188,18 @@ class Forest(BaseEstimator, ClassifierMixin):
 
     def predict(self, X):
         # Run a (weighted) prediction on all trees
-        lst = np.array([t.predict(X) for t in self.estimators])
+        lst = [t.predict(X) for t in self.estimators]
         if self.optimised:
-            lst = lst * 2 - 1
-            wlst = [self.weights[t] * lst[t, :] for t in range(len(self.estimators))]
-            pred = np.sum(wlst, axis=0)
-            pred = [0 if p < 0 else 1 for p in pred]
-            self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
+            lst = [[-1 if p == 0 else 1 for p in row] for row in lst]
+            wlst = [[self.weights[t] * lst[t][i] for i in range(len(lst[t]))] for t in range(len(self.estimators))]
+            pred = [0 if sum(i) < 0 else 1 for i in zip(*wlst)]
+            self.unanimity = [sum([1 if lst[j][i] == pred[i] else 0 for j in range(len(lst))]) for i in
+                              range(len(lst[0]))]
             return pred
         else:
-            pred = [np.argmax(np.bincount(lst[:, i])) for i in range(len(lst[0]))]
-            self.unanimity = [np.count_nonzero(lst[:, i] == pred[i]) for i in range(len(lst[0]))]
+            pred = [0 if sum(i) < len(self.estimators) / 2 else 1 for i in zip(*lst)]
+            self.unanimity = [sum([1 if lst[j][i] == pred[i] else 0 for j in range(len(lst))]) for i in
+                              range(len(lst[0]))]
             return pred
 
     def predict_first_n_trees(self, X, n):
@@ -212,8 +214,6 @@ class Forest(BaseEstimator, ClassifierMixin):
         lst = [[-1 if p == 0 else 1 for p in row] for row in lst]
         wlst = [[weights[t] * lst[t][i] for i in range(len(lst[t]))] for t in range(len(estimators))]
         pred = [0 if sum(i) < 0 else 1 for i in zip(*wlst)]
-        self.unanimity = [np.count_nonzero([lst[t][i] for t in range(len(estimators))] == pred[i]) for i in
-                          range(len(lst[0]))]
         return pred
 
     def check_is_fitted(self):
