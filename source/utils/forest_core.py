@@ -33,6 +33,7 @@ class Forest(BaseEstimator, ClassifierMixin):
         self.weights = []
         self.all_weights = []
         self.optimised = optimised
+        self.prev_pred = {}
 
     def fit(self, X, y):
         check_X_y(X, y)
@@ -88,6 +89,8 @@ class Forest(BaseEstimator, ClassifierMixin):
                 root = tree.tree_
 
                 # Get the root attribute
+                if 'feat' not in root:
+                    break
                 attr = root['feat']
 
                 # Set attribute to 1 in order for it to never be selected by the tree
@@ -111,6 +114,8 @@ class Forest(BaseEstimator, ClassifierMixin):
                         root = root['right']
 
                 # Get the randomly selected attribute
+                if 'feat' not in pred:
+                    break
                 attr = pred['feat']
                 # Set attribute to 1 in order for it to never be selected by the tree
                 for j in range(len(X)):
@@ -202,7 +207,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                               range(len(lst[0]))]
             return pred
 
-    def predict_first_n_trees(self, X, n):
+    def predict_first_n_trees(self, X, n, slot=-1):
         # Run a (weighted) prediction on all trees
         if n >= len(self.all_estimators):
             return self.predict(X)
@@ -210,7 +215,15 @@ class Forest(BaseEstimator, ClassifierMixin):
         estimators = self.all_estimators[:n]
         weights = self.all_weights[n]
 
-        lst = [t.predict(X) for t in estimators]
+        if slot < 0:
+            lst = [t.predict(X) for t in estimators]
+        elif slot not in self.prev_pred:
+            lst = [t.predict(X) for t in estimators]
+            self.prev_pred[slot] = lst
+        else:
+            lst = self.prev_pred[slot]
+            lst.append(estimators[-1].predict(X))
+
         lst = [[-1 if p == 0 else 1 for p in row] for row in lst]
         wlst = [[weights[t] * lst[t][i] for i in range(len(lst[t]))] for t in range(len(estimators))]
         pred = [0 if sum(i) < 0 else 1 for i in zip(*wlst)]

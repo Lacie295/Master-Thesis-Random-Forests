@@ -156,10 +156,10 @@ def plot(algos):
                 g_f_acc.update_layout(height=1200, width=200 + 500 * len(data.n_estimators),
                                       title_text='Forest accuracy with n trees on ' + file)
 
-                for i in range(len(acc[0])):
+                for i in range(len(data.n_estimators)):
                     n_estimators = data.n_estimators[i]
-                    g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=acc[:n_estimators, i], mode='lines',
-                                                 name="Forest #" + str(i)), row=1, col=i + 1)
+                    g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=[a[i] for a in acc[:n_estimators]],
+                                                 mode='lines', name="Forest #" + str(i)), row=1, col=i + 1)
 
                 acc = []
 
@@ -170,10 +170,13 @@ def plot(algos):
                     acc.append(accs)
                 print()
 
-                for i in range(len(acc[0])):
+                for i in range(len(data.n_estimators)):
                     n_estimators = data.n_estimators[i]
-                    g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=acc[:n_estimators, i], mode='lines',
-                                                 name="Forest #" + str(i)), row=2, col=i + 1)
+                    g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=[a[i] for a in acc[:n_estimators]],
+                                                 mode='lines', name="Forest #" + str(i)), row=2, col=i + 1)
+
+                g_f_acc.update_yaxes(range=[0, 1.1], row=1, col=1)
+                g_f_acc.update_yaxes(range=[0, 1.1], row=2, col=1)
 
                 g_f_acc.write_image("plots/acc/acc_" + file.split("/")[-1].split(".")[0] + ".png")
 
