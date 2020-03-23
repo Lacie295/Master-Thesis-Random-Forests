@@ -8,27 +8,27 @@ def main(args):
     assert isinstance(args, ap.Namespace)
 
     b = True if args.force_rebuild else False
-    s = args.split
+    for s in args.split:
+        file_manager.set_split(str(s))
+        file_manager.read(args.input)
 
-    file_manager.read(args.input)
+        if args.all:
+            learning_manager.build_all(b=b, percent=s)
 
-    if args.all:
-        learning_manager.build_all(b=b, percent=s)
+        if args.method:
+            learning_manager.build_algorithms(args.method, b=b, percent=s)
 
-    if args.method:
-        learning_manager.build_algorithms(args.method, b=b, percent=s)
+        if args.graph and args.all:
+            grapher.plot_all()
 
-    if args.graph and args.all:
-        grapher.plot_all()
+        if args.graph and args.method:
+            grapher.plot(args.method)
 
-    if args.graph and args.method:
-        grapher.plot(args.method)
+        if args.create_table and args.all:
+            grapher.table_all()
 
-    if args.create_table and args.all:
-        grapher.table_all()
-
-    if args.create_table and args.method:
-        grapher.table(args.method)
+        if args.create_table and args.method:
+            grapher.table(args.method)
 
 
 if __name__ == "__main__":
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--graph', action="store_true")
     parser.add_argument('-f', '--force-rebuild', action="store_true")
     parser.add_argument('-t', '--create-table', action="store_true")
-    parser.add_argument('-s', '--split', nargs="?", const=0.5, type=float)
+    parser.add_argument('-s', '--split', nargs="+", type=float, required=True)
 
     command_group = parser.add_mutually_exclusive_group()
     command_group.add_argument('-m', '--method', nargs="+")

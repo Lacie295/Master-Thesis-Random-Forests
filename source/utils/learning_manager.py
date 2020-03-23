@@ -15,8 +15,8 @@ algo_names = {
 kwargs = {
     "D-tree": {'min_samples_leaf': 2},
     "R-forest": {'n_estimators': 100},
-    "CP-tree": {'max_depth': 4},
-    "DL8": {'max_depth': 4},
+    "CP-tree": {'max_depth': 3},
+    "DL8": {'max_depth': 3},
     "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "all"},
     "OptDL8-forest": {'n_estimators': 1, 'max_depth': 3, 'method': "all", 'attributes': "progressive"},
     "G-boosting": {'n_estimators': 100}

@@ -4,6 +4,7 @@ from source.utils import learning_manager, file_manager
 import sys
 
 
+
 def plot(algos):
     print("Building graphs.")
     # Create a graph for classification accuracy and for build time
@@ -45,8 +46,8 @@ def plot(algos):
     g_time.update_yaxes(type="log")
     g_acc.update_xaxes(rangemode="tozero")
     g_time.update_xaxes(rangemode="tozero")
-    g_acc.write_image("plots/acc.png")
-    g_time.write_image("plots/time.png")
+    g_acc.write_image("plots/acc" + file_manager.s + ".png")
+    g_time.write_image("plots/time" + file_manager.s + ".png")
 
     # Make the DL8-forest specific graphs
     for algo in algos:
@@ -104,7 +105,7 @@ def plot(algos):
                     values = [depth_map[depth][k] if k in depth_map[depth] else 0 for k in keys]
                     g_spread.add_trace(go.Bar(x=keys, y=values, name="Depth " + str(depth)))
 
-                g_spread.write_image("plots/spread/spread_" + file.split("/")[-1].split(".")[0] + ".png")
+                g_spread.write_image("plots/spread/spread_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
         if algo == "DL8-forest":
             discriminant = learning_manager.discriminants[algo]
@@ -127,7 +128,7 @@ def plot(algos):
                                    yaxis=dict(title='Frequency (#)'))
                 g_unan = go.Figure(layout=layout)
                 g_unan.add_trace(go.Scatter(x=list(range(n_estimators[0] + 1)), y=unan))
-                g_unan.write_image("plots/unan/unan_" + file.split("/")[-1].split(".")[0] + ".png")
+                g_unan.write_image("plots/unan/unan_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
         if algo == "OptDL8-forest":
             discriminant = learning_manager.discriminants[algo]
@@ -178,7 +179,7 @@ def plot(algos):
                 g_f_acc.update_yaxes(range=[0, 1.1], row=1, col=1)
                 g_f_acc.update_yaxes(range=[0, 1.1], row=2, col=1)
 
-                g_f_acc.write_image("plots/acc/acc_" + file.split("/")[-1].split(".")[0] + ".png")
+                g_f_acc.write_image("plots/acc/acc_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
 
 def plot_all():

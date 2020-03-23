@@ -5,6 +5,7 @@ import os
 import glob
 
 JSON_VERSION = 1.2
+s = "0"
 
 
 class DataSet:
@@ -142,3 +143,8 @@ def read_from_db(file, category):
 
 def file_db(file):
     return "results/" + file + ".json"
+
+
+def set_split(split):
+    global s
+    s = split
