@@ -236,7 +236,9 @@ class Forest(BaseEstimator, ClassifierMixin):
         # Build the depth map from all the estimators (only applicable for DL85Classifier)
         if self.tree_class == DL85Classifier:
             depth_map = {}
-            for t in self.estimators:
+            for i in range(len(self.estimators)):
+                t = self.estimators[i]
+                weight = self.weights[i]
                 tree = t.tree_
 
                 def build_depth_map(curr_tree, n=1):
@@ -246,9 +248,9 @@ class Forest(BaseEstimator, ClassifierMixin):
                     if 'class' not in curr_tree:
                         f = curr_tree['feat']
                         if f not in d:
-                            d[f] = 1
+                            d[f] = weight
                         else:
-                            d[f] += 1
+                            d[f] += weight
                         build_depth_map(curr_tree['left'], n + 1)
                         build_depth_map(curr_tree['right'], n + 1)
 

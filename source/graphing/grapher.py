@@ -4,7 +4,6 @@ from source.utils import learning_manager, file_manager
 import sys
 
 
-
 def plot(algos):
     print("Building graphs.")
     # Create a graph for classification accuracy and for build time
@@ -55,9 +54,10 @@ def plot(algos):
             discriminant = learning_manager.discriminants[algo]
             for file in discriminant:
                 # Start with the attribute spread graph
-                layout = go.Layout(title='Frequency of attributes by depth',
-                                   xaxis=dict(type='category', title='Attribute number (sorted by total %'),
-                                   yaxis=dict(title='Frequency (%)'))
+                layout = go.Layout(
+                    title='F' if algo == "DL8-forest" else 'Weighted f' + 'requency of attributes by depth',
+                    xaxis=dict(type='category', title='Attribute number (sorted by total %)'),
+                    yaxis=dict(title='Frequency (%)'))
                 g_spread = go.Figure(layout=layout)
 
                 # Get the data
@@ -105,7 +105,8 @@ def plot(algos):
                     values = [depth_map[depth][k] if k in depth_map[depth] else 0 for k in keys]
                     g_spread.add_trace(go.Bar(x=keys, y=values, name="Depth " + str(depth)))
 
-                g_spread.write_image("plots/spread/spread_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
+                g_spread.write_image(
+                    "plots/spread/spread_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
         if algo == "DL8-forest":
             discriminant = learning_manager.discriminants[algo]
