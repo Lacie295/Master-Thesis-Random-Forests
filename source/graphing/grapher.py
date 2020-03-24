@@ -50,7 +50,7 @@ def plot(algos):
 
     # Make the DL8-forest specific graphs
     for algo in algos:
-        if algo == "DL8-forest" or algo == "OptDL8-forest":
+        if "DL8-forest" in algo or "OptDL8-forest" in algo:
             discriminant = learning_manager.discriminants[algo]
             for file in discriminant:
                 # Start with the attribute spread graph
@@ -106,9 +106,9 @@ def plot(algos):
                     g_spread.add_trace(go.Bar(x=keys, y=values, name="Depth " + str(depth)))
 
                 g_spread.write_image(
-                    "plots/spread/spread_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
+                    "plots/spread/spread_" + algo + "_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
-        if algo == "DL8-forest":
+        if "DL8-forest" in algo:
             discriminant = learning_manager.discriminants[algo]
             for file in discriminant:
                 data = discriminant[file]
@@ -129,9 +129,10 @@ def plot(algos):
                                    yaxis=dict(title='Frequency (#)'))
                 g_unan = go.Figure(layout=layout)
                 g_unan.add_trace(go.Scatter(x=list(range(n_estimators[0] + 1)), y=unan))
-                g_unan.write_image("plots/unan/unan_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
+                g_unan.write_image(
+                    "plots/unan/unan_" + algo + "_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
-        if algo == "OptDL8-forest":
+        if "OptDL8-forest" in algo:
             discriminant = learning_manager.discriminants[algo]
             for file in discriminant:
                 print("graphing:" + file)
@@ -146,9 +147,6 @@ def plot(algos):
                     acc.append(accs)
                 print()
 
-                layout = go.Layout(title='Forest accuracy with n trees',
-                                   xaxis=dict(rangemode="tozero", title='Number of trees used'),
-                                   yaxis=dict(rangemode="tozero", title='Prediction accuracy'))
                 subplot_titles = ["Test accuracy on forest " + str(i) for i in range(len(data.n_estimators))]
                 subplot_titles.extend(["Train accuracy on forest " + str(i) for i in range(len(data.n_estimators))])
                 g_f_acc = make_subplots(rows=2, cols=len(data.n_estimators),
@@ -180,7 +178,8 @@ def plot(algos):
                 g_f_acc.update_yaxes(range=[0, 1.1], row=1, col=1)
                 g_f_acc.update_yaxes(range=[0, 1.1], row=2, col=1)
 
-                g_f_acc.write_image("plots/acc/acc_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
+                g_f_acc.write_image(
+                    "plots/acc/acc_" + algo + "_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
 
 def plot_all():
