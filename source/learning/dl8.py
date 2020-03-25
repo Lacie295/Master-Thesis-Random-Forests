@@ -10,8 +10,8 @@ class DL8(learning.Learning):
     def __init__(self, data_set: file_manager.DataSet, percent=0.5, b=False, **kwargs):
         super().__init__(data_set, percent=percent, b=b)
         self.t = DL85Classifier(**kwargs)
-        self.FILE = FILE
-        self.NAME = NAME
+        self.FILE = FILE + (kwargs["max_depth"] if "depth" in kwargs else "")
+        self.NAME = NAME + (kwargs["max_depth"] if "depth" in kwargs else "")
 
     def build(self):
         super().build()

@@ -7,8 +7,11 @@ algo_names = {
     "R-forest": random_forest.RandomForest,
     "CP-tree": cp_tree.CPTree,
     "DL8": dl8.DL8,
+    "DL82": dl8.DL8,
     "DL8-forest": dl8_forest.DL8Forest,
+    "DL8-forest2": dl8_forest.DL8Forest,
     "OptDL8-forest": optimised_dl8_forest.OptDL8Forest,
+    "OptDL8-forest2": optimised_dl8_forest.OptDL8Forest,
     "G-boosting": gradient_boosting.GradientBoosting
 }
 
@@ -17,6 +20,7 @@ kwargs = {
     "R-forest": {'n_estimators': 100},
     "CP-tree": {'max_depth': 3},
     "DL8": {'max_depth': 3},
+    "DL82": {'max_depth': 2},
     "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "all"},
     "DL8-forest2": {'n_estimators': 10, 'max_depth': 2, 'attributes': "all"},
     "OptDL8-forest": {'n_estimators': 1, 'max_depth': 3, 'method': "all", 'attributes': "progressive"},

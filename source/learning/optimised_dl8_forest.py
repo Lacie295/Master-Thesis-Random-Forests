@@ -11,8 +11,8 @@ class OptDL8Forest(learning.Learning):
     def __init__(self, data_set: file_manager.DataSet, percent=0.5, b=False, **kwargs):
         super().__init__(data_set, percent=percent, b=b)
         self.t = []
-        self.FILE = FILE
-        self.NAME = NAME
+        self.FILE = FILE + (kwargs["max_depth"] if "depth" in kwargs else "")
+        self.NAME = NAME + (kwargs["max_depth"] if "depth" in kwargs else "")
         self.depth_map = {}
         self.unanimity = []
         self.n_estimators = []
@@ -48,7 +48,7 @@ class OptDL8Forest(learning.Learning):
     def check_acc_with_n_trees(self, n, test=True):
         y = self.data_set.test_classes if test else self.data_set.train_classes
         X = self.data_set.test if test else self.data_set.train
-        pred = [self.t[i].predict_first_n_trees(X, n, slot=0 if test else 1) if n <= self.t[i].n_estimators else -1
-                for i in range(len(self.t))]
+        pred = [self.t[i].predict_first_n_trees(X, n, slot=0 if test else 1) if n <= self.t[i].n_estimators else
+                [-2] * len(y) for i in range(len(self.t))]
         return [sum([1 if pred[t][i] == y[i] else 0 for i in range(len(y))]) / len(y)
                 for t in range(len(self.t))]
