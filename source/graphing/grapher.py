@@ -108,7 +108,7 @@ def plot(algos):
                 g_spread.write_image(
                     "plots/spread/spread_" + algo + "_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
-        if "DL8-forest" in algo:
+        if "DL8-forest" in algo and "Opt" not in algo:
             discriminant = learning_manager.discriminants[algo]
             for file in discriminant:
                 data = discriminant[file]

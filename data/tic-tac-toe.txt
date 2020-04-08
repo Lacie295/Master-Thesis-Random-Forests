@@ -1,35 +1,3 @@
-@relation tic-tac-toe-rm_attr_w_10p_missing-rm_inst_w_missing-weka.filters.unsupervised.attribute.Discretize-D-F-B8-M-1.0-Rfirst-last-nominal2binarysplit_minmulti.py-choose_class.py-vpositive
-
-@0:	top-left-square = b
-@1:	top-left-square = o
-@2:	top-left-square = x
-@3:	top-middle-square = b
-@4:	top-middle-square = o
-@5:	top-middle-square = x
-@6:	top-right-square = b
-@7:	top-right-square = o
-@8:	top-right-square = x
-@9:	middle-left-square = b
-@10:	middle-left-square = o
-@11:	middle-left-square = x
-@12:	middle-middle-square = b
-@13:	middle-middle-square = o
-@14:	middle-middle-square = x
-@15:	middle-right-square = b
-@16:	middle-right-square = o
-@17:	middle-right-square = x
-@18:	bottom-left-square = b
-@19:	bottom-left-square = o
-@20:	bottom-left-square = x
-@21:	bottom-middle-square = b
-@22:	bottom-middle-square = o
-@23:	bottom-middle-square = x
-@24:	bottom-right-square = b
-@25:	bottom-right-square = o
-@26:	bottom-right-square = x
-@class:	1='positive'	 0={'negative'}
-@data
-
 2 5 8 11 13 16 20 22 25 1
 2 5 8 11 13 16 19 23 25 1
 2 5 8 11 13 16 19 22 26 1

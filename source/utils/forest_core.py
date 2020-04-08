@@ -6,7 +6,10 @@ from sklearn.utils import resample
 from dl85 import DL85Classifier
 from gurobipy import Model, GRB, quicksum
 import copy
-import sys, os
+import sys
+import os
+
+D = 0.1
 
 
 class Forest(BaseEstimator, ClassifierMixin):
@@ -141,7 +144,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                     all_classes = [0, 1]
                     supports = [0, 0]
                     for tid in tids:
-                        supports[(c[tid] + 1) // 2] += int(sample_count * sample_weights[tid])
+                        supports[(c[tid] + 1) // 2] += sample_weights[tid]
                     maxindex = supports.index(max(supports))
                     return sum(supports) - supports[maxindex], all_classes[maxindex]
 
@@ -272,7 +275,7 @@ def calculate_sample_weights(pred, c, prev_sample_weights=None):
     sample_count = len(c)
 
     m = Model("sample_weight_optimiser")
-    sample_weights = [m.addVar(vtype=GRB.CONTINUOUS, name="sample_weights " + str(i))
+    sample_weights = [m.addVar(vtype=GRB.CONTINUOUS, name="sample_weights " + str(i), ub=D)
                       for i in range(sample_count)]
 
     # Set sample weights to given value
@@ -311,7 +314,7 @@ def calculate_tree_weights(pred, c, prev_tree_weights=None):
 
     rho = m.addVar(vtype=GRB.CONTINUOUS, name="rho", lb=float("-inf"))
 
-    m.setObjective(rho - quicksum(error_margin), GRB.MAXIMIZE)
+    m.setObjective(rho - D * quicksum(error_margin), GRB.MAXIMIZE)
 
     m.addConstr(quicksum(tree_weights) == 1, name="weights = 1")
     for i in range(sample_count):

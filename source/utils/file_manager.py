@@ -11,8 +11,6 @@ s = "0"
 class DataSet:
     def __init__(self, file):
         self.file = file
-        self.class_labels = {}
-        self.labels = {}
         self.data = []
         self.converted_data = []
         self.classes = []
@@ -21,11 +19,12 @@ class DataSet:
         self.train_classes = []
         self.test_classes = []
         self.size = 0
+        self.n_params = 0
 
     def convert_data(self):
         if not self.converted_data:
-            self.converted_data = [[0 for _ in range(len(self.labels))] for _ in range(len(self.data))]
-            for i in range(len(self.data)):
+            self.converted_data = [[0 for _ in range(self.n_params)] for _ in range(self.size)]
+            for i in range(self.size):
                 for j in self.data[i]:
                     self.converted_data[i][j] = 1
 
@@ -55,35 +54,23 @@ def parse(file):
     # Parse the data files into a DataSet object
     lines = file.readlines()
     d = DataSet(file.name)
-    reading_data = False
+    n_params = -1
     for line in lines:
         if line.strip():
-            tokens = line.strip().split()
-            if re.match(r"^@[0-9]+:$", tokens[0]) and not reading_data:
-                n = int(tokens[0][1:-1])
-                label = line[len(tokens[0]):].strip()
-                d.labels[n] = label
-            elif re.match(r"^@class:$", tokens[0]) and not reading_data:
-                for token in tokens[1:]:
-                    t = token.split("=")
-                    n = int(t[0])
-                    c = t[1]
-                    c = c[2:-2] if re.match(r"'{.*}'", c) else c[1:-1]
-                    d.class_labels[n] = c
-            elif re.match(r"^@data$", tokens[0]) and not reading_data:
-                reading_data = True
-            elif re.match(r"^@.*$", tokens[0]):
-                pass
-            elif re.match(r"^[0-9]+$", tokens[0]) and reading_data:
+            tokens = line.split()
+            if re.match(r"^[0-9]+$", tokens[0]):
                 data = []
                 for token in tokens[:-1]:
                     i = int(token)
                     data.append(i)
+                    if i >= n_params:
+                        n_params = i + 1
                 d.data.append(data)
                 d.classes.append(int(tokens[-1]))
             else:
                 raise RuntimeError("Incorrect formatting!")
     d.size = len(d.data)
+    d.n_params = n_params
     return d
 
 
