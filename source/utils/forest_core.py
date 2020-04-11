@@ -9,7 +9,8 @@ import copy
 import sys
 import os
 
-D = 0.1
+D = 1
+MAX_ACC = False
 
 
 class Forest(BaseEstimator, ClassifierMixin):
@@ -314,14 +315,23 @@ def calculate_tree_weights(pred, c, prev_tree_weights=None):
 
     rho = m.addVar(vtype=GRB.CONTINUOUS, name="rho", lb=float("-inf"))
 
-    m.setObjective(rho - D * quicksum(error_margin), GRB.MAXIMIZE)
+    if MAX_ACC:
+        m.setObjective(quicksum(error_margin), GRB.MAXIMIZE)
+    else:
+        m.setObjective(rho - D * quicksum(error_margin), GRB.MAXIMIZE)
 
     m.addConstr(quicksum(tree_weights) == 1, name="weights = 1")
-    for i in range(sample_count):
-        m.addConstr(quicksum([c[i] * tree_weights[t] * pred[t][i] for t in range(tree_count)]) + error_margin[i] >= rho,
-                    name="Constraint on sample " + str(i))
+    if MAX_ACC:
+        for i in range(sample_count):
+            m.addConstr(error_margin[i] <= (
+                    quicksum([c[i] * tree_weights[t] * pred[t][i] for t in range(tree_count)]) + 1))
+    else:
+        for i in range(sample_count):
+            m.addConstr(
+                quicksum([c[i] * tree_weights[t] * pred[t][i] for t in range(tree_count)]) + error_margin[i] >= rho,
+                name="Constraint on sample " + str(i))
 
     m.setParam("LogToConsole", 0)
     m.optimize()
 
-    return [w.X for w in tree_weights], rho.X
+    return [w.X for w in tree_weights], sum([em.X for em in error_margin]) if MAX_ACC else rho.X
