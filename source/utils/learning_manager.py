@@ -12,6 +12,7 @@ algo_names = {
     "DL8-forest2": dl8_forest.DL8Forest,
     "OptDL8-forest": optimised_dl8_forest.OptDL8Forest,
     "OptDL8-forest2": optimised_dl8_forest.OptDL8Forest,
+    "OptDL8-forest3": optimised_dl8_forest.OptDL8Forest,
     "G-boosting": gradient_boosting.GradientBoosting
 }
 
@@ -24,7 +25,10 @@ kwargs = {
     "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "all"},
     "DL8-forest2": {'n_estimators': 10, 'max_depth': 2, 'attributes': "all"},
     "OptDL8-forest": {'n_estimators': 1, 'max_depth': 3, 'method': "all", 'attributes': "progressive"},
-    "OptDL8-forest2": {'n_estimators': 1, 'max_depth': 1, 'method': "all", 'attributes': "progressive"},
+    "OptDL8-forest2": {'n_estimators': 1, 'max_depth': 3, 'method': "all", 'attributes': "progressive",
+                       "time_limit": 60},
+    "OptDL8-forest3": {'n_estimators': 1, 'max_depth': 2, 'method': "all", 'attributes': "progressive",
+                       "tree_limit": 50},
     "G-boosting": {'n_estimators': 100, 'max_depth': 3}
 }
 

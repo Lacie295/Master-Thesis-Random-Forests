@@ -22,6 +22,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                  n_samples=25,
                  sampling_type="%",
                  optimised=False,
+                 tree_limit=-1,
                  **kwargs):
         self.estimators = []
         self.all_estimators = []
@@ -38,6 +39,8 @@ class Forest(BaseEstimator, ClassifierMixin):
         self.all_weights = []
         self.optimised = optimised
         self.prev_pred = {}
+        self.tree_limit = tree_limit
+        self.objective = []
 
     def fit(self, X, y):
         check_X_y(X, y)
@@ -134,6 +137,7 @@ class Forest(BaseEstimator, ClassifierMixin):
             cont = True
             tree_count = self.n_estimators
             sample_count = len(y)
+            tree_optimum = -1
 
             while cont:
                 # Run the dual
@@ -172,7 +176,12 @@ class Forest(BaseEstimator, ClassifierMixin):
                     "\rgamma: {0:.4f}\trho: {1:.4f}\t accuracy: {2:.4f}\tn_trees: {3:d}".format(gamma, rho, accuracy,
                                                                                                 tree_count))
 
-                if accuracy > gamma and cont:
+                self.objective.append(rho)
+                if rho > 0 and tree_optimum < 0:
+                    tree_optimum = tree_count
+
+                if accuracy > gamma and cont and (
+                        self.tree_limit < 0 or tree_count - tree_optimum < self.tree_limit or tree_optimum < 0):
                     # If the tree is good enough, add it to the estimators and continue
                     self.estimators.append(tree)
                     self.all_weights.append(tree_weights)
@@ -249,7 +258,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                     if n not in depth_map:
                         depth_map[n] = {}
                     d = depth_map[n]
-                    if 'class' not in curr_tree:
+                    if 'class' not in curr_tree and 'feat' in curr_tree:
                         f = curr_tree['feat']
                         if f not in d:
                             d[f] = weight

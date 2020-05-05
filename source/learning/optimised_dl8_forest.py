@@ -17,6 +17,7 @@ class OptDL8Forest(learning.Learning):
         self.unanimity = []
         self.n_estimators = []
         self.kwargs = kwargs
+        self.objective = []
 
     def build(self):
         self.size = len(self.data_set.train)
@@ -29,6 +30,7 @@ class OptDL8Forest(learning.Learning):
         self.n_builds += 1
         self.depth_map[self.n_builds - 1] = f.get_depth_map()
         self.n_estimators.append(f.get_n_estimators())
+        self.objective.append(f.objective)
 
     def run(self):
         f = self.t[self.n_builds - 1]

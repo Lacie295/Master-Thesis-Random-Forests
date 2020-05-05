@@ -149,7 +149,8 @@ def plot(algos):
 
                 subplot_titles = ["Test accuracy on forest " + str(i) for i in range(len(data.n_estimators))]
                 subplot_titles.extend(["Train accuracy on forest " + str(i) for i in range(len(data.n_estimators))])
-                g_f_acc = make_subplots(rows=2, cols=len(data.n_estimators),
+                subplot_titles.extend(["Objective on forest " + str(i) for i in range(len(data.n_estimators))])
+                g_f_acc = make_subplots(rows=3, cols=len(data.n_estimators),
                                         shared_xaxes=True, shared_yaxes=True, x_title='Number of trees used',
                                         y_title='Prediction accuracy',
                                         subplot_titles=tuple(subplot_titles))
@@ -175,8 +176,14 @@ def plot(algos):
                     g_f_acc.add_trace(go.Scatter(x=ns[:n_estimators], y=[a[i] for a in acc[:n_estimators]],
                                                  mode='lines', name="Forest #" + str(i)), row=2, col=i + 1)
 
+                for i in range(len(data.n_estimators)):
+                    objective = data.objective[i]
+                    g_f_acc.add_trace(go.Scatter(x=list(range(1, 1 + len(data.objective[i]))), y=objective,
+                                                 mode='lines', name="Forest #" + str(i)), row=3, col=i + 1)
+
                 g_f_acc.update_yaxes(range=[0, 1.1], row=1, col=1)
                 g_f_acc.update_yaxes(range=[0, 1.1], row=2, col=1)
+                g_f_acc.update_yaxes(range=[-1, 1], row=3, col=1)
 
                 g_f_acc.write_image(
                     "plots/acc/acc_" + algo + "_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")

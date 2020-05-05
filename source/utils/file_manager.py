@@ -44,6 +44,7 @@ data_sets = {}
 def read(files):
     for f in files:
         for g in glob.glob(f):
+            print("Reading " + g + ".")
             file = open(g)
             data_sets[g] = parse(file)
             d = data_sets
