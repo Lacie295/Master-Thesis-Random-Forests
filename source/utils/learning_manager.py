@@ -17,7 +17,7 @@ algo_names = {
 }
 
 kwargs = {
-    "D-tree": {'min_samples_leaf': 2},
+    "D-tree": {'min_samples_leaf': 2, 'max_depth': 3},
     "R-forest": {'n_estimators': 100, 'max_depth': 3},
     "CP-tree": {'max_depth': 3},
     "DL8": {'max_depth': 3},
@@ -25,12 +25,12 @@ kwargs = {
     "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "all"},
     "DL8-forest2": {'n_estimators': 10, 'max_depth': 2, 'attributes': "all"},
     "OptDL8-forest": {'n_estimators': 1, 'max_depth': 1, 'method': "all", 'attributes': "progressive",
-                       "tree_limit": 20},
+                      'tree_limit': 10},
     "OptDL8-forest2": {'n_estimators': 1, 'max_depth': 2, 'method': "all", 'attributes': "progressive",
-                       "tree_limit": 20},
+                       'tree_limit': 10},
     "OptDL8-forest3": {'n_estimators': 1, 'max_depth': 3, 'method': "all", 'attributes': "progressive",
-                       "tree_limit": 20},
-    "G-boosting": {'n_estimators': 100, 'max_depth': 3}
+                       'tree_limit': 10, 'time_limit': 60},
+    "G-boosting": {'n_estimators': 100}
 }
 
 discriminants = {}

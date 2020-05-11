@@ -29,11 +29,15 @@ class DataSet:
                     self.converted_data[i][j] = 1
 
     def get_converted_data(self):
-        self.convert_data()
+        if not self.converted_data:
+            self.convert_data()
         return self.converted_data
 
     def split(self, percent):
-        i = list(range(len(self.data)))
+        self.train = []
+        self.test = []
+        self.train_classes = []
+        self.test_classes = []
         self.train, self.test, self.train_classes, self.test_classes = \
             train_test_split(self.get_converted_data(), self.classes, train_size=percent)
 

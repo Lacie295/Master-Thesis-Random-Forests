@@ -44,6 +44,7 @@ class Forest(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y):
         check_X_y(X, y)
+        X = copy.deepcopy(X)
         orig_X = copy.deepcopy(X)
         self.estimators = []
         self.weights = []
@@ -176,7 +177,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                     "\rgamma: {0:.4f}\trho: {1:.4f}\t accuracy: {2:.4f}\tn_trees: {3:d}".format(gamma, rho, accuracy,
                                                                                                 tree_count))
 
-                self.objective.append(rho)
+                self.objective.append(gamma)
                 if rho > 0 and tree_optimum < 0:
                     tree_optimum = tree_count
 
