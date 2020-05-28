@@ -1,3 +1,5 @@
+import random
+
 from source.utils import file_manager
 from source.learning import decision_tree, random_forest, cp_tree, dl8, gradient_boosting, dl8_forest, \
     optimised_dl8_forest
@@ -7,9 +9,7 @@ algo_names = {
     "R-forest": random_forest.RandomForest,
     "CP-tree": cp_tree.CPTree,
     "DL8": dl8.DL8,
-    "DL82": dl8.DL8,
     "DL8-forest": dl8_forest.DL8Forest,
-    "DL8-forest2": dl8_forest.DL8Forest,
     "OptDL8-forest": optimised_dl8_forest.OptDL8Forest,
     "OptDL8-forest2": optimised_dl8_forest.OptDL8Forest,
     "OptDL8-forest3": optimised_dl8_forest.OptDL8Forest,
@@ -18,25 +18,23 @@ algo_names = {
 
 kwargs = {
     "D-tree": {'min_samples_leaf': 2, 'max_depth': 3},
-    "R-forest": {'n_estimators': 100, 'max_depth': 3},
+    "R-forest": {'n_estimators': 20, 'max_depth': 3},
     "CP-tree": {'max_depth': 3},
     "DL8": {'max_depth': 3},
-    "DL82": {'max_depth': 2},
     "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "all"},
-    "DL8-forest2": {'n_estimators': 10, 'max_depth': 2, 'attributes': "all"},
     "OptDL8-forest": {'n_estimators': 1, 'max_depth': 1, 'method': "all", 'attributes': "progressive",
-                      'tree_limit': 10},
+                      'tree_limit': 10, "min_sup": 1},
     "OptDL8-forest2": {'n_estimators': 1, 'max_depth': 2, 'method': "all", 'attributes': "progressive",
-                       'tree_limit': 10},
+                       'tree_limit': 10, "min_sup": 1},
     "OptDL8-forest3": {'n_estimators': 1, 'max_depth': 3, 'method': "all", 'attributes': "progressive",
-                       'tree_limit': 10, 'time_limit': 60},
-    "G-boosting": {'n_estimators': 100}
+                       'tree_limit': 10, 'time_limit': 60, "min_sup": 1},
+    "G-boosting": {'n_estimators': 20, 'max_depth': 3}
 }
 
 discriminants = {}
 
 
-def build_algorithms(algos, b=False, percent=0.5):
+def build_algorithms(algos, b=False, percent=0.5, noise=0):
     for algo in algos:
         discriminants[algo] = {}
 
@@ -49,6 +47,9 @@ def build_algorithms(algos, b=False, percent=0.5):
         print(data_set.file)
         for i in range(10):
             data_set.split(percent)
+
+            data_set.train = [[j if random.randint(0, 100) >= noise else 1-j for j in i] for i in data_set.train]
+
             for algo in algos:
                 d = discriminants[algo][data_set.file]
                 if not d.done:
@@ -60,5 +61,5 @@ def build_algorithms(algos, b=False, percent=0.5):
             d.write_to_file()
 
 
-def build_all(b=False, percent=0.5):
-    build_algorithms(algo_names.keys(), b=b, percent=percent)
+def build_all(b=False, percent=0.5, noise=0):
+    build_algorithms(algo_names.keys(), b=b, percent=percent, noise=noise)

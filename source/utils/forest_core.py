@@ -45,6 +45,7 @@ class Forest(BaseEstimator, ClassifierMixin):
     def fit(self, X, y):
         check_X_y(X, y)
         X = copy.deepcopy(X)
+
         orig_X = copy.deepcopy(X)
         self.estimators = []
         self.weights = []

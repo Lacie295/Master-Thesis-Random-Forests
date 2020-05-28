@@ -13,10 +13,10 @@ def main(args):
         file_manager.read(args.input)
 
         if args.all:
-            learning_manager.build_all(b=b, percent=s)
+            learning_manager.build_all(b=b, percent=s, noise=args.noise)
 
         if args.method:
-            learning_manager.build_algorithms(args.method, b=b, percent=s)
+            learning_manager.build_algorithms(args.method, b=b, percent=s, noise=args.noise)
 
         if args.graph and args.all:
             grapher.plot_all()
@@ -39,6 +39,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--force-rebuild', action="store_true")
     parser.add_argument('-t', '--create-table', action="store_true")
     parser.add_argument('-s', '--split', nargs="+", type=float, required=True)
+    parser.add_argument('-n', '--noise', type=float, default=0)
 
     command_group = parser.add_mutually_exclusive_group()
     command_group.add_argument('-m', '--method', nargs="+")
