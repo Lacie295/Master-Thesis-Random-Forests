@@ -9,7 +9,7 @@ import copy
 import sys
 import os
 
-D = 1
+D = 0
 MAX_ACC = False
 
 
@@ -253,7 +253,7 @@ class Forest(BaseEstimator, ClassifierMixin):
             depth_map = {}
             for i in range(len(self.estimators)):
                 t = self.estimators[i]
-                weight = self.weights[i]
+                weight = self.weights[i] if len(self.weights) > 0 else 1
                 tree = t.tree_
 
                 def build_depth_map(curr_tree, n=1):
@@ -287,7 +287,7 @@ def calculate_sample_weights(pred, c, prev_sample_weights=None):
     sample_count = len(c)
 
     m = Model("sample_weight_optimiser")
-    sample_weights = [m.addVar(vtype=GRB.CONTINUOUS, name="sample_weights " + str(i), ub=D)
+    sample_weights = [m.addVar(vtype=GRB.CONTINUOUS, name="sample_weights " + str(i), ub=D if D > 0 else 1)
                       for i in range(sample_count)]
 
     # Set sample weights to given value

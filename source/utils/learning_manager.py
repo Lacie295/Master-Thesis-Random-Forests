@@ -16,19 +16,17 @@ algo_names = {
     "G-boosting": gradient_boosting.GradientBoosting
 }
 
+MAX_DEPTH = 3
+
 kwargs = {
-    "D-tree": {'min_samples_leaf': 2, 'max_depth': 3},
-    "R-forest": {'n_estimators': 20, 'max_depth': 3},
-    "CP-tree": {'max_depth': 3},
-    "DL8": {'max_depth': 3},
-    "DL8-forest": {'n_estimators': 10, 'max_depth': 3, 'attributes': "all"},
-    "OptDL8-forest": {'n_estimators': 1, 'max_depth': 1, 'method': "all", 'attributes': "progressive",
-                      'tree_limit': 10, "min_sup": 1},
-    "OptDL8-forest2": {'n_estimators': 1, 'max_depth': 2, 'method': "all", 'attributes': "progressive",
-                       'tree_limit': 10, "min_sup": 1},
-    "OptDL8-forest3": {'n_estimators': 1, 'max_depth': 3, 'method': "all", 'attributes': "progressive",
-                       'tree_limit': 10, 'time_limit': 60, "min_sup": 1},
-    "G-boosting": {'n_estimators': 20, 'max_depth': 3}
+    "D-tree": {'min_samples_leaf': 2, 'max_depth': MAX_DEPTH},
+    "R-forest": {'n_estimators': 20, 'max_depth': MAX_DEPTH},
+    "CP-tree": {'max_depth': MAX_DEPTH},
+    "DL8": {'max_depth': MAX_DEPTH},
+    "DL8-forest": {'n_estimators': 10, 'max_depth': MAX_DEPTH, 'attributes': "all"},
+    "OptDL8-forest": {'n_estimators': 1, 'max_depth': MAX_DEPTH, 'method': "all", 'attributes': "progressive",
+                      'tree_limit': 10, "time_limit": 60, "min_sup": 5},
+    "G-boosting": {'n_estimators': 20, 'max_depth': MAX_DEPTH}
 }
 
 discriminants = {}
