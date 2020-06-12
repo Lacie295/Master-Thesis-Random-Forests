@@ -9,7 +9,6 @@ import copy
 import sys
 import os
 
-D = 0
 MAX_ACC = False
 
 
@@ -23,6 +22,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                  sampling_type="%",
                  optimised=False,
                  tree_limit=-1,
+                 error_weight=1,
                  **kwargs):
         self.estimators = []
         self.all_estimators = []
@@ -41,6 +41,7 @@ class Forest(BaseEstimator, ClassifierMixin):
         self.prev_pred = {}
         self.tree_limit = tree_limit
         self.objective = []
+        self.D = error_weight
 
     def fit(self, X, y):
         check_X_y(X, y)
@@ -89,7 +90,7 @@ class Forest(BaseEstimator, ClassifierMixin):
 
             if self.optimised:
                 pred.append(tree.predict(X))
-                weights, _ = calculate_tree_weights(pred, c, prev_tree_weights)
+                weights, _ = calculate_tree_weights(pred, c, self.D, prev_tree_weights)
                 self.all_weights.append(weights)
                 prev_tree_weights = weights
 
@@ -143,7 +144,7 @@ class Forest(BaseEstimator, ClassifierMixin):
 
             while cont:
                 # Run the dual
-                sample_weights, gamma = calculate_sample_weights(pred, c, prev_sample_weights)
+                sample_weights, gamma = calculate_sample_weights(pred, c, self.D, prev_sample_weights)
                 prev_sample_weights = sample_weights
 
                 # Error function for DL8
@@ -171,7 +172,7 @@ class Forest(BaseEstimator, ClassifierMixin):
                 tree_pred = [-1 if p == 0 else 1 for p in tree.predict(X)]
                 accuracy = sum([c[i] * sample_weights[i] * tree_pred[i] for i in range(sample_count)])
 
-                tree_weights, rho = calculate_tree_weights(pred, c, prev_tree_weights)
+                tree_weights, rho = calculate_tree_weights(pred, c, self.D, prev_tree_weights)
                 prev_tree_weights = tree_weights
 
                 sys.stdout.write(
@@ -281,7 +282,7 @@ class Forest(BaseEstimator, ClassifierMixin):
         return self.n_estimators
 
 
-def calculate_sample_weights(pred, c, prev_sample_weights=None):
+def calculate_sample_weights(pred, c, D, prev_sample_weights=None):
     # Dual problem
     tree_count = len(pred)
     sample_count = len(c)
@@ -311,7 +312,7 @@ def calculate_sample_weights(pred, c, prev_sample_weights=None):
     return [w.X for w in sample_weights], gamma.X
 
 
-def calculate_tree_weights(pred, c, prev_tree_weights=None):
+def calculate_tree_weights(pred, c, D, prev_tree_weights=None):
     tree_count = len(pred)
     sample_count = len(c)
 

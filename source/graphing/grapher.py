@@ -128,7 +128,7 @@ def plot(algos):
                                    xaxis=dict(type='category', title='Number of trees in agreement'),
                                    yaxis=dict(title='Frequency (#)'))
                 g_unan = go.Figure(layout=layout)
-                g_unan.add_trace(go.Scatter(x=list(range(n_estimators[0] + 1)), y=unan))
+                g_unan.add_trace(go.Bar(x=list(range(n_estimators[0] + 1)), y=unan))
                 g_unan.write_image(
                     "plots/unan/unan_" + algo + "_" + file.split("/")[-1].split(".")[0] + file_manager.s + ".png")
 
